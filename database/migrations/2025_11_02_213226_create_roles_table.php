@@ -26,9 +26,6 @@ return new class extends Migration
             $table->index('_status');
             $table->index('_slug');
         });
-        
-        // Set default hierarchy levels after table is created
-        $this->setDefaultHierarchyLevels();
     }
 
     /**
@@ -37,34 +34,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('roles');
-    }
-    
-    /**
-     * Set default hierarchy levels for roles
-     */
-    private function setDefaultHierarchyLevels()
-    {
-        $roles = [
-            'super_administrator' => 100,
-            'general_manager' => 90,
-            'operations_manager' => 80,
-            'finance_manager' => 80,
-            'club_manager' => 70,
-            'restaurant_manager' => 70,
-            'bar_manager' => 70,
-            'head_bartender' => 60,
-            'bartender' => 50,
-            'server' => 40,
-            'bouncer' => 40,
-            'host' => 40,
-            'member' => 30,
-            'guest' => 10,
-        ];
-
-        foreach ($roles as $slug => $level) {
-            \DB::table('roles')
-                ->where('_slug', $slug)
-                ->update(['_hierarchy_matrix_level' => $level]);
-        }
     }
 };
