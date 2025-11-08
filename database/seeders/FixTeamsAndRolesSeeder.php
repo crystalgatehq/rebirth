@@ -107,7 +107,7 @@ class FixTeamsAndRolesSeeder extends Seeder
         // Now create teams and assign users
         $roles->each(function ($role) {
             // Find the default user for this role
-            $defaultEmail = strtolower(str_replace(' ', '.', $role->name)) . '@psilocybin.org';
+            $defaultEmail = strtolower(str_replace(' ', '.', $role->name)) . '@rebirth.org';
             $defaultUser = User::where('email', $defaultEmail)->first();
             
             if (!$defaultUser) {
@@ -146,7 +146,7 @@ class FixTeamsAndRolesSeeder extends Seeder
             
             // Find and assign other users with the same role as members
             $userRoleSlug = strtolower(str_replace(' ', '.', $role->name));
-            $otherUsers = User::where('email', 'LIKE', "%{$userRoleSlug}@psilocybin.org")
+            $otherUsers = User::where('email', 'LIKE', "%{$userRoleSlug}@rebirth.org")
                 ->where('id', '!=', $defaultUser->id)
                 ->get();
                 

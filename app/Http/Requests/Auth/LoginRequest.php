@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests\Auth;
 
-use Illuminate\Auth\Events\Lockout;
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Illuminate\Auth\Events\Lockout;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
@@ -32,11 +32,6 @@ class LoginRequest extends FormRequest
         ];
     }
 
-    /**
-     * Attempt to authenticate the request's credentials.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     /**
      * Attempt to authenticate the request's credentials.
      *

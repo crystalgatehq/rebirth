@@ -2,12 +2,12 @@
 
 namespace App\Traits;
 
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Writer;
-use Illuminate\Support\Facades\Crypt;
 use PragmaRX\Google2FA\Google2FA;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Common\ErrorCorrectionLevel;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 
 /**
  * Provides two-factor authentication functionality for the User model.
@@ -102,10 +102,10 @@ trait HasTwoFactorAuthentication
         
         // Define error correction levels (L = ~7%, M = ~15%, Q = ~25%, H = ~30%)
         $errorLevels = [
-            \BaconQrCode\Common\ErrorCorrectionLevel::L(),
-            \BaconQrCode\Common\ErrorCorrectionLevel::M(),
-            \BaconQrCode\Common\ErrorCorrectionLevel::Q(),
-            \BaconQrCode\Common\ErrorCorrectionLevel::H()
+            ErrorCorrectionLevel::L(),
+            ErrorCorrectionLevel::M(),
+            ErrorCorrectionLevel::Q(),
+            ErrorCorrectionLevel::H()
         ];
         
         // Select styles based on the seed
@@ -121,7 +121,7 @@ trait HasTwoFactorAuthentication
         $dynamicColor = $this->hslToRgb($hue / 360, $saturation / 100, $lightness / 100);
         
         // Create a renderer with dynamic styles
-        $renderer = new \BaconQrCode\Renderer\Image\SvgImageBackEnd(
+        $renderer = new SvgImageBackEnd(
             null, // Width
             null, // Height
             'square', // Shape (square or circle)
@@ -132,7 +132,7 @@ trait HasTwoFactorAuthentication
         );
         
         // Create a custom renderer style based on the dot style
-        $rendererStyle = new \BaconQrCode\Renderer\RendererStyle\RendererStyle(
+        $rendererStyle = new RendererStyle(
             256, // Size (will be scaled to 256x256 by the backend)
             2,   // Margin (in modules)
             null, // Module size (null for auto)
@@ -140,8 +140,8 @@ trait HasTwoFactorAuthentication
         );
         
         // Create the writer with the custom renderer
-        $writer = new \BaconQrCode\Writer(
-            new \BaconQrCode\Renderer\ImageRenderer($rendererStyle, $renderer)
+        $writer = new Writer(
+            new ImageRenderer($rendererStyle, $renderer)
         );
         
         return $writer->writeString($qrCodeUrl);

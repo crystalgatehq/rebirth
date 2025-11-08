@@ -5,10 +5,10 @@ namespace Deployer;
 require 'recipe/laravel.php';
 
 // Project name
-set('application', 'psilocybin');
+set('application', 'rebirth');
 
 // Project repository
-set('repository', 'git@github.com:wagura-maurice/psilocybin.git');
+set('repository', 'git@github.com:wagura-maurice/rebirth.git');
 
 // [Optional] Allocate tty for git clone. Default value is false.
 set('git_tty', true);

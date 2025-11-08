@@ -26,7 +26,7 @@ class SetupTeamMembershipsSeeder extends Seeder
             $roleName = trim(preg_replace('/\(\d+\)$/', '', $team->name));
             
             // Find the owner user (email matches role name)
-            $ownerEmail = strtolower(str_replace(' ', '.', $roleName)) . '@psilocybin.org';
+            $ownerEmail = strtolower(str_replace(' ', '.', $roleName)) . '@rebirth.org';
             $owner = $users->where('email', $ownerEmail)->first();
             
             if ($owner) {

@@ -1,10 +1,10 @@
-# process.yml at /var/www/html/psilocybin/current which is root dir of the project
-# * * * * * cd /var/www/html/psilocybin/current && /usr/bin/php8.4 artisan schedule:run >> /dev/null 2>&1
+# process.yml at /var/www/html/rebirth/current which is root dir of the project
+# * * * * * cd /var/www/html/rebirth/current && /usr/bin/php8.4 artisan schedule:run >> /dev/null 2>&1
 apps:
   # Laravel Horizon for queue management
   - script: "artisan"
-    name: "psilocybin-horizon"
-    cwd: "/var/www/html/psilocybin/current"
+    name: "rebirth-horizon"
+    cwd: "/var/www/html/rebirth/current"
     args: "horizon"
     interpreter: "php"
     watch: false
@@ -14,8 +14,8 @@ apps:
 
   # Schedule Worker for scheduled tasks
   - script: "artisan"
-    name: "psilocybin-schedule"
-    cwd: "/var/www/html/psilocybin/current"
+    name: "rebirth-schedule"
+    cwd: "/var/www/html/rebirth/current"
     args: "schedule:work"
     interpreter: "php"
     watch: false

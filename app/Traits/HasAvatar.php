@@ -2,9 +2,6 @@
 
 namespace App\Traits;
 
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-
 /**
  * Trait for handling user avatars
  */

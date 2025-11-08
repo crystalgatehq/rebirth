@@ -3,6 +3,8 @@
 namespace App\Traits;
 
 use App\Models\Team;
+use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -38,7 +40,7 @@ trait HasTeams
     /**
      * Get all the teams the user owns or belongs to.
      */
-    public function allTeams(): \Illuminate\Support\Collection
+    public function allTeams(): Collection
     {
         return $this->ownedTeams->merge($this->teams)->sortBy('name');
     }
@@ -46,7 +48,7 @@ trait HasTeams
     /**
      * Get all the teams the user owns.
      */
-    public function ownedTeams(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function ownedTeams(): HasMany
     {
         return $this->hasMany(Team::class);
     }

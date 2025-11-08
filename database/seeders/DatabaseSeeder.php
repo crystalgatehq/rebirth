@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
             // Sanitize role name to only allow alphanumeric, dots, and hyphens
             $sanitizedName = preg_replace('/[^a-zA-Z0-9. -]/', '', $role->name);
             $emailLocal = strtolower(preg_replace('/[. -]+/', '.', trim($sanitizedName)));
-            $ownerEmail = $emailLocal . '@psilocybin.org';
+            $ownerEmail = $emailLocal . '@rebirth.org';
             $ownerUser = $this->createUser($role->name, $ownerEmail, $role->_slug, false);
             $allUsers[] = $ownerUser;
             $ownerUsers[$role->id] = $ownerUser;

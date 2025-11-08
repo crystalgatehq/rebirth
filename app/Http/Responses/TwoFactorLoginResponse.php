@@ -2,9 +2,9 @@
 
 namespace App\Http\Responses;
 
+use Laravel\Fortify\Fortify;
 use Illuminate\Http\JsonResponse;
 use Laravel\Fortify\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
-use Laravel\Fortify\Fortify;
 
 class TwoFactorLoginResponse implements TwoFactorLoginResponseContract
 {

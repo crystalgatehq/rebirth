@@ -32,7 +32,7 @@ class CleanupTeamsAndMembershipsSeeder extends Seeder
             }
             
             // Get the owner user for this role (email matches role name)
-            $ownerEmail = strtolower(str_replace(' ', '.', $role->name)) . '@psilocybin.org';
+            $ownerEmail = strtolower(str_replace(' ', '.', $role->name)) . '@rebirth.org';
             $owner = $users->where('email', $ownerEmail)->first();
             
             if ($owner) {

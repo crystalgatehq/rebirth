@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use PragmaRX\Google2FA\Google2FA;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Crypt;
-use PragmaRX\Google2FA\Google2FA;
 
 class TwoFactorAuthenticationController extends Controller
 {

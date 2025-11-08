@@ -2,20 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Traits\HasTwoFactorAuthentication;
+use App\Models\Role;
+use App\Models\Team;
+use App\Models\Profile;
+use App\Traits\HasTeams;
 use Laravel\Passport\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
+use App\Traits\HasTwoFactorAuthentication;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Traits\HasTeams;
-use App\Models\Profile;
-use App\Models\Team;
-use App\Models\Role;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -224,17 +224,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Determine if the user is an administrator.
      */
-    public function isAdmin(): bool
+    public function isAdministrator(): bool
     {
-        return $this->hasRole('admin') || $this->isSuperAdmin();
-    }
-
-    /**
-     * Determine if the user is a super administrator.
-     */
-    public function isSuperAdmin(): bool
-    {
-        return $this->hasRole('super-admin');
+        return $this->hasRole('administrator');
     }
 
     /**
