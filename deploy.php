@@ -74,7 +74,7 @@ task('release:application', function () {
     }
 
     // Run database migrations
-    // run('{{bin/php}} {{release_path}}/artisan migrate:fresh --seed --force --no-interaction');
+    run('{{bin/php}} {{release_path}}/artisan migrate:fresh --seed --force --no-interaction');
 
     // Cache configuration
     run('{{bin/php}} {{release_path}}/artisan config:cache');
@@ -93,7 +93,7 @@ task('release:application', function () {
     run('{{bin/php}} {{release_path}}/artisan optimize');
 
     // Run custom deployment commands
-    run('{{bin/php}} {{release_path}}/artisan app:optimize --no-interaction');
+    // run('{{bin/php}} {{release_path}}/artisan app:optimize --no-interaction');
     
     // Clear and warm the opcode cache
     if (str_contains(run('{{bin/php}} -m'), 'opcache')) {
