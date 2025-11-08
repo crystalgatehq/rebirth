@@ -19,25 +19,10 @@ echo -e "\n\033[1;34m=== DATABASE SEEDING REPORT ===\033[0m"
 # Table counts
 echo -e "\n\033[1;32m=== TABLE COUNTS ===\033[0m"
 /usr/bin/php8.4 artisan tinker --execute="
-    echo 'Users:      ' . DB::table('users')->count() . '\n';
-    echo 'Roles:      ' . DB::table('roles')->count() . '\n';
-    echo 'Teams:      ' . DB::table('teams')->count() . '\n';
-    echo 'Team_User:  ' . DB::table('team_user')->count() . '\n';
-    echo 'Role_User:  ' . DB::table('role_user')->count() . '\n';
-    echo 'Profiles:   ' . DB::table('profiles')->count() . '\n';
-    echo 'Biometrics: ' . DB::table('biometrics')->count() . '\n';
-"
-
-# Team roles
-echo -e "\n\033[1;32m=== TEAM ROLES ===\033[0m"
-/usr/bin/php8.4 artisan tinker --execute="
-    DB::table('team_user')
-        ->select('role', DB::raw('count(*) as count'))
-        ->groupBy('role')
-        ->get()
-        ->each(function(\$item) {
-            echo ucfirst(\$item->role) . 's: ' . \$item->count . '\n';
-        });
+    echo 'Users:     ' . DB::table('users')->count() . '\n';
+    echo 'Roles:     ' . DB::table('roles')->count() . '\n';
+    echo 'Role_User: ' . DB::table('role_user')->count() . '\n';
+    echo 'Profiles:  ' . DB::table('profiles')->count() . '\n';
 "
 
 # Roles distribution

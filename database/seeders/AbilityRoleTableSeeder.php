@@ -34,11 +34,11 @@ class AbilityRoleTableSeeder extends Seeder
 
         $assignments = [];
 
-        // ────────────────────── SUPER ADMINISTRATOR ──────────────────────
-        $superAdmin = $roles['Super Administrator'];
+        // ────────────────────── ADMINISTRATOR ──────────────────────
+        $administrator = $roles['Administrator'];
         foreach ($abilities as $abilityName => $abilityId) {
             $assignments[] = [
-                'role_id'     => $superAdmin,
+                'role_id'     => $administrator,
                 'ability_id'  => $abilityId,
                 'created_at'  => now(),
                 'updated_at'  => now(),
