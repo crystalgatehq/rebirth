@@ -1,0 +1,24 @@
+# process.yml at /var/www/html/psilocybin/current which is root dir of the project
+# * * * * * cd /var/www/html/psilocybin/current && /usr/bin/php8.4 artisan schedule:run >> /dev/null 2>&1
+apps:
+  # Laravel Horizon for queue management
+  - script: "artisan"
+    name: "psilocybin-horizon"
+    cwd: "/var/www/html/psilocybin/current"
+    args: "horizon"
+    interpreter: "php"
+    watch: false
+    env:
+      APP_ENV: production
+      LOG_CHANNEL: stderr
+
+  # Schedule Worker for scheduled tasks
+  - script: "artisan"
+    name: "psilocybin-schedule"
+    cwd: "/var/www/html/psilocybin/current"
+    args: "schedule:work"
+    interpreter: "php"
+    watch: false
+    env:
+      APP_ENV: production
+      LOG_CHANNEL: stderr
