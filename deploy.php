@@ -8,7 +8,7 @@ require 'recipe/laravel.php';
 set('application', 'rebirth');
 
 // Project repository
-set('repository', 'git@github.com:wagura-maurice/rebirth.git');
+set('repository', 'git@github.com:crystalgatehq/rebirth.git');
 
 // [Optional] Allocate tty for git clone. Default value is false.
 set('git_tty', true);
