@@ -3,9 +3,7 @@
 namespace App\Models;
 
 use App\Models\Role;
-use App\Models\Team;
 use App\Models\Profile;
-use App\Traits\HasTeams;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use App\Traits\HasTwoFactorAuthentication;
@@ -20,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, HasTwoFactorAuthentication, HasTeams;
+    use HasApiTokens, HasFactory, Notifiable, HasTwoFactorAuthentication;
 
     /**
      * The attributes that are mass assignable.
@@ -41,7 +39,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'current_team_id',
         'profile_photo_path',
         'two_factor_secret',
         'two_factor_recovery_codes',
@@ -87,23 +84,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Profile::class);
     }
 
-    /**
-     * The teams that the user belongs to.
-     */
-    public function teams(): BelongsToMany
-    {
-        return $this->belongsToMany(Team::class, 'team_user')
-            ->withPivot(['role', 'created_at', 'updated_at'])
-            ->withTimestamps();
-    }
-
-    /**
-     * Get the user's biometric data.
-     */
-    public function biometric(): HasOne
-    {
-        return $this->hasOne(Biometric::class);
-    }
 
     /**
      * The roles that belong to the user.
@@ -115,43 +95,6 @@ class User extends Authenticatable implements MustVerifyEmail
             ->withPivot('created_at', 'updated_at');
     }
 
-    /**
-     * The teams that the user owns.
-     */
-    public function ownedTeams(): HasMany
-    {
-        return $this->hasMany(Team::class);
-    }
-
-    /**
-     * Get the user's current team.
-     */
-    public function currentTeam(): BelongsTo
-    {
-        return $this->belongsTo(Team::class, 'current_team_id');
-    }
-
-    /**
-     * Get the URL to the user's profile photo.
-     */
-    public function getProfilePhotoUrlAttribute(): string
-    {
-        return $this->profile_photo_path
-            ? asset('storage/'.$this->profile_photo_path)
-            : $this->defaultProfilePhotoUrl();
-    }
-
-    /**
-     * Get the default profile photo URL if no profile photo has been uploaded.
-     */
-    protected function defaultProfilePhotoUrl(): string
-    {
-        $name = trim(collect(explode(' ', $this->name))->map(function ($segment) {
-            return mb_substr($segment, 0, 1);
-        })->join(' '));
-
-        return 'https://ui-avatars.com/api/?name='.urlencode($name).'&color=7F9CF5&background=EBF4FF';
-    }
 
     /**
      * Check if the user has a specific role.
@@ -230,18 +173,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Determine if the user owns the given team.
-     */
-    public function ownsTeam($team): bool
-    {
-        if (is_null($team)) {
-            return false;
-        }
-
-        return $this->id == $team->user_id;
-    }
-
-    /**
      * Get the user's preferred locale.
      */
     public function preferredLocale()
@@ -282,29 +213,5 @@ class User extends Authenticatable implements MustVerifyEmail
             'last_login_at' => now(),
             'last_login_ip' => request()->ip(),
         ]);
-    }
-
-    /**
-     * Check if the user is the owner of the given team.
-     */
-    public function isTeamOwner(Team $team): bool
-    {
-        return $this->id === $team->user_id;
-    }
-
-    /**
-     * Check if the user is a member of the given team.
-     */
-    public function isMemberOf(Team $team): bool
-    {
-        return $this->teams->contains($team->id);
-    }
-
-    /**
-     * Get the user's team role for a specific team.
-     */
-    public function teamRole(Team $team): ?string
-    {
-        return $this->teams()->where('team_id', $team->id)->first()?->pivot->role;
     }
 }
