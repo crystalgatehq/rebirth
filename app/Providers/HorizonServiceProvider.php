@@ -29,7 +29,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     {
         // Gate::define('viewHorizon', function ($user = null) {
         //     return in_array(optional($user)->email, [
-        //         'superadmin@rebirth.org' => 'super_administrator',
+        //         'admin@rebirth.org' => 'administrator',
         //         'gm@rebirth.org' => 'general_manager',
         //         'finance@rebirth.org' => 'finance_manager',
         //         'operations@rebirth.org' => 'operations_manager',
