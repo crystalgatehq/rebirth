@@ -35,7 +35,7 @@ class OptimizeCommand extends Command
             
             // Run Laravel optimization commands
             $this->info('Running Laravel optimization...');
-            $this->runLaravelOptimization();
+            // $this->runLaravelOptimization();
             
             $this->info('Optimization completed successfully!');
             return Command::SUCCESS;
