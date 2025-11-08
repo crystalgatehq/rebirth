@@ -74,7 +74,7 @@ task('release:application', function () {
     }
 
     // Run database migrations
-    run('{{bin/php}} {{release_path}}/artisan migrate:fresh --seed --force --no-interaction');
+    // run('{{bin/php}} {{release_path}}/artisan migrate:fresh --seed --force --no-interaction');
 
     // Cache configuration
     run('{{bin/php}} {{release_path}}/artisan config:cache');
