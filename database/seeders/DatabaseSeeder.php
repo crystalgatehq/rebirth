@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
         
         // Truncate teams table and reset auto-increment
         \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        \App\Models\Team::truncate();
+        Team::truncate();
         \DB::statement('ALTER TABLE teams AUTO_INCREMENT = 1;');
         \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         
@@ -58,15 +58,15 @@ class DatabaseSeeder extends Seeder
             if (!$ownerUser) continue;
             
             // Create team for this role
-            $team = \App\Models\Team::create([
+            $team = Team::create([
                 'name' => $teamName,
                 '_slug' => \Illuminate\Support\Str::slug($teamName),
                 'description' => "Team for {$role->name} role",
                 'user_id' => $ownerUser->id,
                 'personal_team' => false,
                 '_status' => $role->_status === \App\Models\Role::ACTIVE 
-                    ? \App\Models\Team::ACTIVE 
-                    : \App\Models\Team::SUSPENDED,
+                    ? Team::ACTIVE 
+                    : Team::SUSPENDED,
                 'role_id' => $role->id,
                 '_uuid' => (string) \Illuminate\Support\Str::uuid(),
             ]);

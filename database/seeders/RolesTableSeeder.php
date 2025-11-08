@@ -29,7 +29,7 @@ class RolesTableSeeder extends Seeder
         $roles = [
             // ────────────────────── SYSTEM & EXECUTIVE ──────────────────────
             [
-                'name'        => 'Super Administrator',
+                'name'        => 'Administrator',
                 'description' => 'Full system access – can do everything.',
                 '_hierarchy_matrix_level' => 100,
                 '_status'     => Role::ACTIVE
