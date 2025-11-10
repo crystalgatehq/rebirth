@@ -6,6 +6,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use App\Models\Communication;
+use App\Observers\CommunicationObserver;
+use App\Console\Commands\CheckCommunicationReceiptsStatus;
+use App\Channels\SmsChannel;
+use App\Services\IAN\AfricaIsTalkingServices;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
             // primary requirement for digital ocean MySQL network
             DB::statement('SET SESSION sql_require_primary_key=0');
         }
+        
+        // Bind AfricaIsTalkingServices for dependency injection
+        $this->app->bind(
+            \App\Services\IAN\AfricaIsTalkingServices::class
+        );
     }
 
     /**
@@ -39,7 +49,14 @@ class AppServiceProvider extends ServiceProvider
         // App Db Schema.
         Schema::defaultStringLength(191);
 
-        // Register the Product observer
-        // Product::observe(ProductObserver::class);
+        // Register the SMS channel with Africa's Talking service
+        $this->app->when(SmsChannel::class)
+            ->needs(AfricaIsTalkingServices::class)
+            ->give(function () {
+                return new AfricaIsTalkingServices();
+            });
+        
+        // Register the communication observer
+        Communication::observe(CommunicationObserver::class);
     }
 }
