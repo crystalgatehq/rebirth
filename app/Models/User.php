@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\Role;
 use App\Models\Profile;
+use App\Models\Team;
+use App\Models\ContactGroup;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use App\Traits\HasTwoFactorAuthentication;
@@ -93,6 +95,56 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Role::class, 'role_user')
             ->withTimestamps()
             ->withPivot('created_at', 'updated_at');
+    }
+
+    /**
+     * Teams that the user owns.
+     */
+    public function ownedTeams(): HasMany
+    {
+        return $this->hasMany(Team::class, 'owner_id');
+    }
+
+    /**
+     * Teams that the user belongs to.
+     */
+    public function teams(): BelongsToMany
+    {
+        return $this->belongsToMany(Team::class, 'team_user')
+            ->withPivot('role')
+            ->withTimestamps();
+    }
+
+    /**
+     * Contact groups created by this user.
+     */
+    public function contactGroups(): HasMany
+    {
+        return $this->hasMany(ContactGroup::class);
+    }
+
+    /**
+     * Get all contact groups shared with this user.
+     */
+    public function sharedContactGroups()
+    {
+        // Groups shared directly with user
+        $directShared = ContactGroup::whereJsonContains('shared_with_users', $this->id)
+            ->where('user_id', '!=', $this->id);
+
+        // Groups shared with user's teams
+        $teamIds = $this->teams()->pluck('teams.id');
+        $teamShared = ContactGroup::where(function($query) use ($teamIds) {
+            foreach ($teamIds as $teamId) {
+                $query->orWhereJsonContains('shared_with_teams', $teamId);
+            }
+        })->where('user_id', '!=', $this->id);
+
+        // Organization-wide groups
+        $orgWide = ContactGroup::where('visibility', ContactGroup::VISIBILITY_ORGANIZATION)
+            ->where('user_id', '!=', $this->id);
+
+        return $directShared->union($teamShared)->union($orgWide);
     }
 
 
@@ -213,5 +265,13 @@ class User extends Authenticatable implements MustVerifyEmail
             'last_login_at' => now(),
             'last_login_ip' => request()->ip(),
         ]);
+    }
+
+    public function teamsWithRole($role)
+    {
+        return $this->teams()
+            ->wherePivot('role', $role)
+            ->wherePivot('status', 'active')
+            ->get();
     }
 }
