@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\User;
 use App\Models\Role;
-use App\Models\Ability;
+use App\Models\Team;
+use App\Models\User;
+use Illuminate\Support\Str;
+use Database\Factories\TeamFactory;
+use Illuminate\Support\Facades\Hash;
 use Database\Factories\ProfileFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -48,6 +49,9 @@ class UserFactory extends Factory
     /**
      * Configure the model factory.
      */
+    /**
+     * Configure the model factory.
+     */
     public function configure(): static
     {
         return $this->afterCreating(function (User $user) {
@@ -55,11 +59,33 @@ class UserFactory extends Factory
                 $user->markEmailAsVerified();
             }
 
+            $this->ensureUserHasTeam($user);
             $this->ensureUserHasProfile($user);
             $this->assignRoleToUser($user);
+            
+            // Add user to additional teams (20% chance for each user)
+            if ($this->faker->boolean(20)) {
+                $this->addUserToOtherTeams($user);
+            }
         });
     }
     
+    /**
+     * Add user to all other teams except their own teams.
+     *
+     * @param User $user
+     * @return void
+     */
+    protected function addUserToOtherTeams(User $user): void
+    {
+        $teams = Team::where('owner_id', '!=', $user->id) // Don't add to own teams
+            ->where('personal_team', false)
+            ->get();
+
+        foreach ($teams as $team) {
+            $team->addMember($user);
+        }
+    }
 
     /**
      * Ensure the user has a profile.
@@ -71,6 +97,28 @@ class UserFactory extends Factory
                 ->for($user)
                 ->create(['user_id' => $user->id]);
         }
+    }
+
+    /**
+     * Ensure the user has a team and necessary associations.
+     */
+    protected function ensureUserHasTeam(User $user): void
+    {
+        if ($user->ownedTeams()->exists()) {
+            return;
+        }
+
+        $team = TeamFactory::new()
+            ->for($user, 'owner')
+            ->create([
+                'name' => "{$user->name}'s Team",
+                '_slug' => Str::slug("{$user->name}-team"),
+                'personal_team' => false,
+                '_status' => 1, // 1 = active
+            ]);
+
+        $user->update(['current_team_id' => $team->id]);
+    
     }
 
     /**
