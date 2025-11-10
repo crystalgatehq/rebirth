@@ -27,6 +27,13 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
     
+    // Contact Group Sharing
+    Route::prefix('contact-groups')->group(function () {
+        Route::put('{contactGroup}/sharing', 'API\ContactGroupShareController@updateSharing');
+        Route::get('{contactGroup}/sharing', 'API\ContactGroupShareController@getSharingInfo');
+        Route::get('shared', 'API\ContactGroupShareController@getSharedGroups');
+    });
+    
     // Add your protected routes here
-    // Example: Route::apiResource('posts', 'API\\PostController');
+    // Example: Route::apiResource('posts', 'API\PostController');
 });
