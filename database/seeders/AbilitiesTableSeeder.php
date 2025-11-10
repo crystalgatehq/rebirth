@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Models\Ability;
 
 class AbilitiesTableSeeder extends Seeder
@@ -233,21 +234,24 @@ class AbilitiesTableSeeder extends Seeder
             ],
             [
                 'name'        => 'Manage Events',
-                'description' => 'Plan and promote club nights, dinners, or tours.',
+                'description' => 'Create and manage special events and promotions.',
                 '_status'     => Ability::ACTIVE
-            ],
+            ]
         ];
 
-        // Insert in chunks
-        foreach (array_chunk($abilities, 20) as $chunk) {
-            // Add slugs to each ability in the chunk
-            $chunk = array_map(function($ability) {
-                $ability['_slug'] = \Illuminate\Support\Str::slug($ability['name']);
-                return $ability;
-            }, $chunk);
-            DB::table('abilities')->insert($chunk);
+        // Insert abilities one by one to handle UUIDs properly
+        foreach ($abilities as $ability) {
+            DB::table('abilities')->insert([
+                '_uuid' => (string) Str::uuid(),
+                'name' => $ability['name'],
+                '_slug' => Str::slug($ability['name']),
+                'description' => $ability['description'] ?? null,
+                '_status' => $ability['_status'] ?? 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
         }
-
+        
         $this->command->info('Successfully seeded ' . count($abilities) . ' abilities!');
     }
 }

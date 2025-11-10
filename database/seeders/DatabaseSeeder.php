@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Team;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
@@ -37,7 +38,7 @@ class DatabaseSeeder extends Seeder
             $sanitizedName = preg_replace('/[^a-zA-Z0-9. -]/', '', $role->name);
             $emailLocal = strtolower(preg_replace('/[. -]+/', '.', trim($sanitizedName)));
             $email = $emailLocal . '@rebirth.org';
-            $user = $this->createUser($role->name, $email, $role->_slug, false);
+            $user = $this->createUser($role->name, $email, $role->_slug);
             
             // Assign the role to the user
             $user->roles()->sync([$role->id], false);
@@ -45,7 +46,12 @@ class DatabaseSeeder extends Seeder
             $allUsers[] = $user;
         }
         
-        // 4. Run the database fixer to ensure data integrity
+        // 4. Add Africa's Talking settings
+        $this->call([
+            AfricasTalkingSettingsSeeder::class,
+        ]);
+
+        // 5. Run the database fixer to ensure data integrity
         $this->call([
             FixDatabaseSeeder::class,
         ]);
@@ -64,21 +70,39 @@ class DatabaseSeeder extends Seeder
      * @param string $name
      * @param string $email
      * @param string $roleSlug
-     * @param bool $randomizeEmail
      * @return \App\Models\User
      */
-    protected function createUser(string $name, string $email, string $roleSlug, bool $randomizeEmail = true): User
+    protected function createUser(string $name, string $email, string $roleSlug): User
     {
-        if ($randomizeEmail) {
-            $email = str_replace('@', rand(1000, 9999) . '@', $email);
-        }
-
         return User::factory()->create([
             'name' => $name,
             'email' => $email,
             'password' => bcrypt('password'),
             'email_verified_at' => now(),
         ]);
+
+        // Assign the role
+        $user->assignRole($roleSlug);
+
+        // Create a team for the user if requested and they don't have one
+        if ($user->ownedTeams()->count() === 0) {
+            $teamName = $name . "'s Team";
+            $team = $user->ownedTeams()->create([
+                '_uuid' => (string) \Illuminate\Support\Str::uuid(),
+                'name' => $teamName,
+                '_slug' => \Illuminate\Support\Str::slug($teamName),
+                'description' => 'Team for ' . $name,
+                'personal_team' => false,
+                '_status' => Team::ACTIVE
+            ]);
+
+            // Attach the user to the team as owner
+            $user->teams()->syncWithoutDetach([$team->id => ['role' => 'owner']]);
+            
+            // Set the user's current team
+            $user->current_team_id = $team->id;
+            $user->save();
+        }
 
         return $user;
     }
