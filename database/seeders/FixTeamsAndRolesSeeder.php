@@ -124,17 +124,17 @@ class FixTeamsAndRolesSeeder extends Seeder
             } else {
                 // Create the team if it doesn't exist
                 $team = Team::create([
-                    '_uuid' => (string) \Illuminate\Support\Str::uuid(),
+                    'uuid' => (string) \Illuminate\Support\Str::uuid(),
                     'owner_id' => $defaultUser->id,
                     'name' => \Illuminate\Support\Str::plural($role->name),
                     'display_name' => \Illuminate\Support\Str::plural($role->name),
-                    '_slug' => \Illuminate\Support\Str::slug(\Illuminate\Support\Str::plural($role->name), '_'),
+                    'slug' => \Illuminate\Support\Str::slug(\Illuminate\Support\Str::plural($role->name), '_'),
                     'code' => strtoupper(substr(\Illuminate\Support\Str::plural($role->name), 0, 4)),
                     'description' => "Team for {$role->name} role",
                     'type' => 'team',
                     'is_active' => true,
                     'is_verified' => false,
-                    '_status' => $role->_status === Role::ACTIVE
+                    'status' => $role->status === Role::ACTIVE
                         ? 1 // Team::ACTIVE
                         : 2, // Team::SUSPENDED
                     'settings' => json_encode([
@@ -227,7 +227,7 @@ class FixTeamsAndRolesSeeder extends Seeder
                         'schedule' => []
                     ]
                 ]),
-                '_status' => 'active',
+                'status' => 'active',
                 'added_by' => $defaultUser->id,
                 'created_at' => now(),
                 'updated_at' => now()
@@ -286,7 +286,7 @@ class FixTeamsAndRolesSeeder extends Seeder
                             'schedule' => []
                         ]
                     ]),
-                    '_status' => 'active',
+                    'status' => 'active',
                     'added_by' => $defaultUser->id,
                     'created_at' => now(),
                     'updated_at' => now()

@@ -90,7 +90,7 @@ class CleanupDatabaseSeeder extends Seeder
                         'schedule' => []
                     ]
                 ]),
-                '_status' => 'active',
+                'status' => 'active',
                 'added_by' => $owner->id,
                 'created_at' => now(),
                 'updated_at' => now()
@@ -144,7 +144,7 @@ class CleanupDatabaseSeeder extends Seeder
                             'schedule' => []
                         ]
                     ]),
-                    '_status' => 'active',
+                    'status' => 'active',
                     'added_by' => $owner->id,
                     'created_at' => now(),
                     'updated_at' => now()

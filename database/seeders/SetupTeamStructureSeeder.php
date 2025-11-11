@@ -56,17 +56,17 @@ class SetupTeamStructureSeeder extends Seeder
             if (!$team) {
                 // Create team if it doesn't exist
                 $team = Team::create([
-                    '_uuid' => (string) \Illuminate\Support\Str::uuid(),
+                    'uuid' => (string) \Illuminate\Support\Str::uuid(),
                     'owner_id' => $owner->id,
                     'name' => Str::plural($role->name),
                     'display_name' => Str::plural($role->name),
-                    '_slug' => Str::slug(Str::plural($role->name), '_'),
+                    'slug' => Str::slug(Str::plural($role->name), '_'),
                     'code' => strtoupper(substr(Str::plural($role->name), 0, 4)),
                     'description' => "Team for {$role->name} role",
                     'type' => 'team',
                     'is_active' => true,
                     'is_verified' => false,
-                    '_status' => 1, // Active
+                    'status' => 1, // Active
                     'settings' => json_encode([
                         'privacy' => 'private',
                         'join_policy' => 'invite_only',
@@ -158,7 +158,7 @@ class SetupTeamStructureSeeder extends Seeder
                         'schedule' => []
                     ]
                 ]),
-                '_status' => 'active',
+                'status' => 'active',
                 'added_by' => $owner->id,
                 'created_at' => now(),
                 'updated_at' => now()
@@ -212,7 +212,7 @@ class SetupTeamStructureSeeder extends Seeder
                             'schedule' => []
                         ]
                     ]),
-                    '_status' => 'active',
+                    'status' => 'active',
                     'added_by' => $owner->id,
                     'created_at' => now(),
                     'updated_at' => now()

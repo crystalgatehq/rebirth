@@ -26,13 +26,13 @@ class FixTeamNamesAndSlugsSeeder extends Seeder
             $team->update([
                 'name' => $cleanName,
                 'display_name' => $cleanName,
-                '_slug' => $slug,
+                'slug' => $slug,
                 'code' => strtoupper(substr($cleanName, 0, 4)),
                 'description' => $team->description ?? "Team for {$cleanName} role",
                 'type' => $team->type ?? 'team',
                 'is_active' => $team->is_active ?? true,
                 'is_verified' => $team->is_verified ?? false,
-                '_status' => $team->_status ?? 1, // Active
+                'status' => $team->status ?? 1, // Active
                 'settings' => $team->settings ?? json_encode([
                     'privacy' => 'private',
                     'join_policy' => 'invite_only',

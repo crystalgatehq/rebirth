@@ -12,7 +12,7 @@ class AfricasTalkingSettingsSeeder extends Seeder
         $settings = [
             [
                 'name' => 'AFRICASTALKING_USERNAME',
-                '_slug' => 'africastalking-username',
+                'slug' => 'africastalking-username',
                 'description' => 'Africa\'s Talking API username',
                 'default_value' => '',
                 'current_value' => env('AFRICASTALKING_USERNAME', ''),
@@ -32,7 +32,7 @@ class AfricasTalkingSettingsSeeder extends Seeder
             ],
             [
                 'name' => 'AFRICASTALKING_API_KEY',
-                '_slug' => 'africastalking-api-key',
+                'slug' => 'africastalking-api-key',
                 'description' => 'Africa\'s Talking API key',
                 'default_value' => '',
                 'current_value' => env('AFRICASTALKING_API_KEY', ''),
@@ -52,7 +52,7 @@ class AfricasTalkingSettingsSeeder extends Seeder
             ],
             [
                 'name' => 'AFRICASTALKING_SENDER_ID',
-                '_slug' => 'africastalking-sender-id',
+                'slug' => 'africastalking-sender-id',
                 'description' => 'Default sender ID for SMS messages',
                 'default_value' => env('APP_NAME', 'Rebirth'),
                 'current_value' => env('AFRICASTALKING_SENDER_ID', env('APP_NAME', 'Rebirth')),
@@ -71,7 +71,7 @@ class AfricasTalkingSettingsSeeder extends Seeder
             ],
             [
                 'name' => 'AFRICASTALKING_ENABLED',
-                '_slug' => 'africastalking-enabled',
+                'slug' => 'africastalking-enabled',
                 'description' => 'Enable/Disable Africa\'s Talking service',
                 'default_value' => 'false',
                 'current_value' => env('AFRICASTALKING_ENABLED', 'false'),
@@ -90,6 +90,7 @@ class AfricasTalkingSettingsSeeder extends Seeder
         ];
 
         foreach ($settings as $setting) {
+            $setting['uuid'] = (string) \Illuminate\Support\Str::uuid();
             Setting::updateOrCreate(
                 ['name' => $setting['name']],
                 $setting
