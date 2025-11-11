@@ -11,196 +11,245 @@ class Team extends Model
     use HasFactory, SoftDeletes;
 
     // Status constants
-    public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 0;
+    public const STATUS_ACTIVE = 1;
     public const STATUS_SUSPENDED = 2;
 
-    // Role constants
-    public const OWNER = 'owner';
-    public const MEMBER = 'member';
-
-    // Team types
-    public const TYPE_DEPARTMENT = 'department';
-    public const TYPE_PROJECT = 'project';
-    public const TYPE_TEAM = 'team';
-    public const TYPE_ORGANIZATION = 'organization';
-    public const TYPE_OTHER = 'other';
-
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
+        'uuid',
+        'owner_id',
         'name',
         'display_name',
-        '_slug',
-        'code',
+        'abbrivated_name',
+        'slug',
         'description',
-        'owner_id',
-        'parent_team_id',
-        'logo_path',
-        'banner_path',
-        'website',
-        'industry',
-        'size',
-        'settings',
-        'communication_settings',
-        'type',
-        'is_active',
-        'is_verified',
-        'verified_at',
-        'verified_by',
-        '_status',
-        'trial_ends_at'
+        'personal_team',
+        'status'
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
-        'settings' => 'array',
-        'communication_settings' => 'array',
-        'is_active' => 'boolean',
-        'is_verified' => 'boolean',
-        'verified_at' => 'datetime',
-        'trial_ends_at' => 'datetime',
-        'size' => 'integer',
-        '_status' => 'integer',
+        'uuid' => 'string',
+        'owner_id' => 'integer',
+        'personal_team' => 'boolean',
+        'status' => 'integer'
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'id',
+    ];
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array<int, string>
+     */
     protected $dates = [
-        'verified_at',
-        'trial_ends_at',
         'created_at',
         'updated_at',
         'deleted_at'
     ];
 
+    /**
+     * Get the owner of the team.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
 
-    public function verifier()
-    {
-        return $this->belongsTo(User::class, 'verified_by');
-    }
-
-    public function parentTeam()
-    {
-        return $this->belongsTo(Team::class, 'parent_team_id');
-    }
-
-    public function childTeams()
-    {
-        return $this->hasMany(Team::class, 'parent_team_id');
-    }
-
-    public function members()
+    /**
+     * Get all users that are members of the team (excluding the owner).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function users()
     {
         return $this->belongsToMany(User::class, 'team_user')
-            ->withPivot([
-                'role',
-                'permissions',
-                'metadata',
-                'temporal',
-                '_status',
-                'status_reason',
-                'status_changed_at',
-                'status_changed_by',
-                'added_by',
-                'notes'
-            ])
             ->withTimestamps()
-            ->withTrashed();
+            ->withPivot(['status', 'added_by', 'status_changed_at']);
     }
 
-    public function contactGroups()
+    /**
+     * Check if a user is associated with this team (either as owner or member).
+     *
+     * @param  User|int  $user
+     * @return bool
+     */
+    public function hasUser($user): bool
     {
-        return $this->hasMany(ContactGroup::class);
+        if ($user instanceof User) {
+            return $this->isOwnedBy($user) || $this->users->contains('id', $user->id);
+        }
+        
+        return $this->owner_id === $user || $this->users->contains('id', $user);
     }
 
-    public function addMember(User $user, string $role = self::MEMBER, ?int $addedBy = null)
+    /**
+     * Check if the given user is the owner of the team.
+     *
+     * @param  User|int  $user
+     * @return bool
+     */
+    public function isOwnedBy($user): bool
     {
-        return $this->members()->syncWithoutDetaching([
-            $user->id => [
-                'role' => $role,
-                'added_by' => $addedBy ?? auth()->id(),
-                '_status' => self::STATUS_ACTIVE,
-                'status_changed_at' => now(),
-                'status_changed_by' => $addedBy ?? auth()->id(),
-                'created_at' => now(),
-                'updated_at' => now()
-            ]
-        ], false);
+        if ($user instanceof User) {
+            return $this->owner_id === $user->id;
+        }
+        
+        return $this->owner_id === $user;
     }
 
-    public function removeMember(User $user): void
+    /**
+     * Add a user to the team.
+     *
+     * @param  User  $user
+     * @param  int|null  $addedBy
+     * @return bool
+     */
+    public function addUser(User $user, ?int $addedBy = null): bool
     {
-        $this->members()->detach($user->id);
+        if ($this->isOwnedBy($user)) {
+            return false; // User is already the owner
+        }
+
+        if ($this->users->contains('id', $user->id)) {
+            return false; // User is already a member
+        }
+
+        $this->users()->attach($user->id, [
+            'added_by' => $addedBy,
+            'status' => self::STATUS_ACTIVE,
+            'status_changed_at' => now(),
+            'status_changed_by' => $addedBy,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        return true;
     }
 
-    public function hasMember(User $user): bool
+    /**
+     * Remove a user from the team.
+     *
+     * @param  User  $user
+     * @return bool
+     */
+    public function removeUser(User $user): bool
     {
-        return $this->members()
-            ->where('user_id', $user->id)
-            ->where('_status', self::STATUS_ACTIVE)
+        if ($this->isOwnedBy($user)) {
+            return false; // Cannot remove the owner this way
+        }
+
+        return (bool) $this->users()->detach($user->id);
+    }
+
+    /**
+     * Check if a user is a member of the team (not the owner).
+     *
+     * @param  User|int  $user
+     * @return bool
+     */
+    public function hasMember($user): bool
+    {
+        if ($user instanceof User) {
+            $userId = $user->id;
+        } else {
+            $userId = $user;
+        }
+
+        return $this->users()
+            ->where('user_id', $userId)
+            ->where('status', self::STATUS_ACTIVE)
             ->exists();
     }
 
+    /**
+     * Check if the given user is the owner of the team.
+     *
+     * @param  User|int  $user
+     * @return bool
+     */
     public function isOwner(User $user): bool
     {
         return $this->owner_id === $user->id;
     }
 
+    /**
+     * Check if the given user is a member of the team (not the owner).
+     *
+     * @param  User|int  $user
+     * @return bool
+     */
+    public function isMember(User $user): bool
+    {
+        return $this->members()
+            ->where('user_id', $user->id)
+            ->where('status', self::STATUS_ACTIVE)
+            ->exists();
+    }
+
+    /**
+     * Scope a query to only include active teams.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
+    /**
+     * Scope a query to only include verified teams.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeVerified($query)
     {
         return $query->where('is_verified', true)
             ->whereNotNull('verified_at');
     }
 
+    /**
+     * Scope a query to only include teams of a specific type.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  string  $type
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeType($query, string $type)
     {
         return $query->where('type', $type);
     }
 
+    /**
+     * Scope a query to only include teams with active members.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeWithActiveMembers($query)
     {
         return $query->whereHas('members', function ($q) {
-            $q->where('_status', self::STATUS_ACTIVE);
-        });
-    }
-
-    public function getSettingsAttribute($value)
-    {
-        return is_array($value) ? $value : json_decode($value, true) ?? [];
-    }
-
-    public function getCommunicationSettingsAttribute($value)
-    {
-        return is_array($value) ? $value : json_decode($value, true) ?? [];
-    }
-
-    public function getLogoUrlAttribute()
-    {
-        return $this->logo_path ? asset('storage/' . $this->logo_path) : null;
-    }
-
-    public function getBannerUrlAttribute()
-    {
-        return $this->banner_path ? asset('storage/' . $this->banner_path) : null;
-    }
-
-    protected static function booted()
-    {
-        static::creating(function ($team) {
-            if (empty($team->code)) {
-                $team->code = strtoupper(substr($team->name, 0, 4));
-            }
-            if (empty($team->_slug)) {
-                $team->_slug = \Illuminate\Support\Str::slug($team->name, '_');
-            }
-            if (empty($team->display_name)) {
-                $team->display_name = $team->name;
-            }
+            $q->where('status', self::STATUS_ACTIVE);
         });
     }
 }

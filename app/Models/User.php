@@ -27,16 +27,6 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var array<int, string>
      */
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -66,16 +56,20 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var array<string, string>
      */
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'two_factor_confirmed_at' => 'datetime',
         'last_login_at' => 'datetime'
+    ];
+
+    /**
+     * The attributes that should be appended to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'profile_photo_url',
     ];
 
     /**
@@ -198,7 +192,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function assignRole($role): void
     {
         if (is_string($role)) {
-            $role = Role::where('_slug', $role)->firstOrFail();
+            $role = Role::where('slug', $role)->firstOrFail();
         }
 
         $this->roles()->syncWithoutDetaching([$role->id]);
@@ -210,7 +204,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function removeRole($role): void
     {
         if (is_string($role)) {
-            $role = Role::where('_slug', $role)->firstOrFail();
+            $role = Role::where('slug', $role)->firstOrFail();
         }
 
         $this->roles()->detach($role->id);
@@ -237,7 +231,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function scopeActive($query)
     {
-        return $query->where('_status', 1);
+        return $query->where('status', 1);
     }
 
     /**
@@ -245,7 +239,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function scopeInactive($query)
     {
-        return $query->where('_status', 0);
+        return $query->where('status', 0);
     }
 
     /**
@@ -253,7 +247,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getStatusAttribute(): string
     {
-        return $this->_status === 1 ? 'active' : 'inactive';
+        return $this->status === 1 ? 'active' : 'inactive';
     }
 
     /**
@@ -267,6 +261,12 @@ class User extends Authenticatable implements MustVerifyEmail
         ]);
     }
 
+    /**
+     * Get teams the user belongs to with a specific role.
+     *
+     * @param string $role The role slug
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
     public function teamsWithRole($role)
     {
         return $this->teams()

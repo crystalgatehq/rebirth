@@ -2,103 +2,120 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ContactGroup extends Model
 {
     use HasFactory, SoftDeletes;
 
-    const VISIBILITY_PRIVATE = 'PRIVATE';
-    const VISIBILITY_TEAM = 'TEAM';
-    const VISIBILITY_ORGANIZATION = 'ORGANIZATION';
+    // Visibility constants
+    public const VISIBILITY_PRIVATE = 0;
+    public const VISIBILITY_TEAM = 1;
+    public const VISIBILITY_PUBLIC = 2;
 
-    const STATUS_ACTIVE = 1;
-    const STATUS_INACTIVE = 0;
+    // Status constants
+    public const STATUS_INACTIVE = 0;
+    public const STATUS_ACTIVE = 1;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
-        'user_id', 'name', '_slug', 'description', 'visibility',
-        'shared_with_teams', 'shared_with_users', 'configuration', '_status'
+        'uuid',
+        'user_id',
+        'name',
+        'slug',
+        'description',
+        'visibility',
+        'status',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
-        'shared_with_teams' => 'array',
-        'shared_with_users' => 'array',
-        'configuration' => 'array',
-        '_status' => 'integer',
+        'visibility' => 'integer',
+        'status' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
+    /**
+     * The model's default values for attributes.
+     *
+     * @var array<string, mixed>
+     */
     protected $attributes = [
         'visibility' => self::VISIBILITY_PRIVATE,
-        '_status' => self::STATUS_ACTIVE,
-        'shared_with_teams' => '[]',
-        'shared_with_users' => '[]',
-        'configuration' => '{"delivery":{"type":"IMMEDIATE","time":"09:00","timezone":"Africa\/Nairobi","frequency":"ONCE","days":[1,2,3,4,5]},"notifications":{"on_send":true,"on_delivery":true,"on_failure":true},"permissions":{"can_edit":["owner"],"can_send":["owner","team"],"can_manage_members":["owner"]}}'
+        'status' => self::STATUS_ACTIVE,
     ];
 
-    protected static function booted()
-    {
-        static::creating(function ($contactGroup) {
-            if (Auth::check()) {
-                $contactGroup->user_id = $contactGroup->user_id ?? Auth::id();
-            }
-            $contactGroup->_slug = \Illuminate\Support\Str::slug($contactGroup->name);
-        });
-
-        static::updating(function ($contactGroup) {
-            if ($contactGroup->isDirty('name')) {
-                $contactGroup->_slug = \Illuminate\Support\Str::slug($contactGroup->name);
-            }
-        });
-    }
-
+    /**
+     * Get the user that owns the contact group.
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function members()
+    /**
+     * Scope a query to only include active contact groups.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeActive($query)
     {
-        return $this->hasMany(ContactGroupMember::class);
+        return $query->where('status', self::STATUS_ACTIVE);
     }
 
-    public function communications()
+    /**
+     * Scope a query to only include public contact groups.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopePublic($query)
     {
-        return $this->belongsToMany(Communication::class, 'communication_contact_group');
+        return $query->where('visibility', self::VISIBILITY_PUBLIC);
     }
 
-    public function shareWithUsers(array $userIds)
+    /**
+     * Check if the contact group is active.
+     *
+     * @return bool
+     */
+    public function isActive(): bool
     {
-        $current = $this->shared_with_users ?? [];
-        $this->update([
-            'shared_with_users' => array_values(array_unique(array_merge($current, $userIds)))
-        ]);
+        return $this->status === self::STATUS_ACTIVE;
     }
 
-    public function shareWithTeams(array $teamIds)
+    /**
+     * Check if the contact group is private.
+     *
+     * @return bool
+     */
+    public function isPrivate(): bool
     {
-        $current = $this->shared_with_teams ?? [];
-        $this->update([
-            'shared_with_teams' => array_values(array_unique(array_merge($current, $teamIds)))
-        ]);
+        return $this->visibility === self::VISIBILITY_PRIVATE;
     }
 
-    public function removeUserShare(int $userId)
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
     {
-        $current = $this->shared_with_users ?? [];
-        $this->update([
-            'shared_with_users' => array_values(array_diff($current, [$userId]))
-        ]);
-    }
-
-    public function removeTeamShare(int $teamId)
-    {
-        $current = $this->shared_with_teams ?? [];
-        $this->update([
-            'shared_with_teams' => array_values(array_diff($current, [$teamId]))
-        ]);
+        return 'uuid';
     }
 
     public function canBeViewedBy(User $user): bool
@@ -152,7 +169,7 @@ class ContactGroup extends Model
         return false;
     }
 
-    public function subscribers()
+    public function subscribers(): HasMany
     {
         return $this->hasMany(ContactGroupSubscriber::class);
     }

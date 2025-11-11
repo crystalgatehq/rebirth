@@ -10,151 +10,98 @@ class TeamUser extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // Role constants
+    public const OWNER = 'owner';
+    public const MEMBER = 'member';
+
     // Status constants
-    public const STATUS_INVITED = 'invited';
-    public const STATUS_ACTIVE = 'active';
-    public const STATUS_SUSPENDED = 'suspended';
-    public const STATUS_INACTIVE = 'inactive';
-    public const STATUS_BANNED = 'banned';
+    public const STATUS_ACTIVE = 1;
+    public const STATUS_INACTIVE = 0;
 
     protected $table = 'team_user';
 
     protected $fillable = [
         'team_id',
         'user_id',
-        'role',
-        'permissions',
-        'metadata',
-        'temporal',
-        '_status',
-        'status_reason',
-        'status_changed_at',
-        'status_changed_by',
-        'added_by',
-        'notes',
+        'constraints',
+        'play',
+        'activities',
+        'status',
     ];
 
     protected $casts = [
-        'permissions' => 'array',
-        'metadata' => 'array',
-        'temporal' => 'array',
-        'status_changed_at' => 'datetime',
+        'constraints' => 'array',
+        'activities' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
-    protected $dates = [
-        'status_changed_at',
-        'created_at',
-        'updated_at',
-        'deleted_at'
-    ];
-
+    /**
+     * Get the team that owns the team user.
+     */
     public function team()
     {
         return $this->belongsTo(Team::class);
     }
 
+    /**
+     * Get the user that owns the team user.
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function statusChanger()
-    {
-        return $this->belongsTo(User::class, 'status_changed_by');
-    }
-
-    public function addedBy()
-    {
-        return $this->belongsTo(User::class, 'added_by');
-    }
-
+    /**
+     * Scope a query to only include active team users.
+     */
     public function scopeActive($query)
     {
-        return $query->where('_status', self::STATUS_ACTIVE);
+        return $query->where('status', self::STATUS_ACTIVE);
     }
 
-    public function scopeRole($query, string $role)
-    {
-        return $query->where('role', $role);
-    }
-
-    public function isActive(): bool
-    {
-        return $this->_status === self::STATUS_ACTIVE;
-    }
-
+    /**
+     * Check if the user is an owner of the team.
+     */
     public function isOwner(): bool
     {
-        return $this->role === Team::OWNER;
+        return $this->play === self::OWNER;
     }
 
+    /**
+     * Check if the user is a member of the team.
+     */
     public function isMember(): bool
     {
-        return $this->role === Team::MEMBER;
+        return $this->play === self::MEMBER;
     }
 
-    public function getPermissionsAttribute($value)
+    /**
+     * Get the activities attribute with default value.
+     */
+    public function getActivitiesAttribute($value)
     {
-        return is_array($value) ? $value : json_decode($value, true) ?? [
-            'can_invite' => false,
-            'can_manage_members' => false,
-            'can_edit_team' => false,
-            'can_delete_team' => false,
-            'can_manage_roles' => false,
-            'can_manage_settings' => false,
-            'can_manage_billing' => false,
-            'can_export_data' => false
-        ];
+        return is_array($value) ? $value : (json_decode($value, true) ?? []);
     }
 
-    public function getMetadataAttribute($value)
+    /**
+     * Get the constraints attribute with default value.
+     */
+    public function getConstraintsAttribute($value)
     {
-        return is_array($value) ? $value : json_decode($value, true) ?? [
-            'invitation_token' => null,
-            'invited_by' => null,
-            'invited_at' => null,
-            'joined_at' => null,
-            'last_active_at' => null,
-            'mfa_enabled' => false,
-            'mfa_method' => null,
-            'timezone' => 'Africa/Nairobi',
-            'preferences' => [
-                'notifications' => [
-                    'email' => true,
-                    'in_app' => true,
-                    'push' => true
-                ],
-                'language' => 'en',
-                'theme' => 'system'
-            ]
-        ];
+        return is_array($value) ? $value : (json_decode($value, true) ?? []);
     }
 
-    public function getTemporalAttribute($value)
-    {
-        return is_array($value) ? $value : json_decode($value, true) ?? [
-            'is_temporary' => false,
-            'starts_at' => null,
-            'expires_at' => null,
-            'time_restrictions' => [
-                'enabled' => false,
-                'timezone' => 'Africa/Nairobi',
-                'schedule' => []
-            ]
-        ];
-    }
 
     protected static function booted()
     {
         static::saving(function ($teamUser) {
-            if (is_array($teamUser->permissions)) {
-                $teamUser->permissions = json_encode($teamUser->permissions);
+            if (is_array($teamUser->activities)) {
+                $teamUser->activities = json_encode($teamUser->activities);
             }
-            if (is_array($teamUser->metadata)) {
-                $teamUser->metadata = json_encode($teamUser->metadata);
-            }
-            if (is_array($teamUser->temporal)) {
-                $teamUser->temporal = json_encode($teamUser->temporal);
+            if (is_array($teamUser->constraints)) {
+                $teamUser->constraints = json_encode($teamUser->constraints);
             }
         });
     }

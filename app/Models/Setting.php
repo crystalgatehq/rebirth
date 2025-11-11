@@ -7,14 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
+    // Status constants
+    public const STATUS_INACTIVE = 0;
+    public const STATUS_ACTIVE = 1;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
+        'uuid',
         'name',
-        '_slug',
+        'slug',
         'description',
         'default_value',
         'current_value',
@@ -23,6 +28,16 @@ class Setting extends Model
         'sort_order',
         'is_public',
         'options',
+        'status',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'id',
     ];
 
     /**
@@ -31,9 +46,21 @@ class Setting extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'options' => 'array',
+        'uuid' => 'string',
         'is_public' => 'boolean',
+        'options' => 'json',
         'sort_order' => 'integer',
+        'status' => 'integer',
+        'deleted_at' => 'datetime',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'is_active',
     ];
 
     /**
@@ -46,7 +73,7 @@ class Setting extends Model
     public static function getValue(string $item, $default = null)
     {
         return Cache::rememberForever("setting_{$item}", function () use ($item, $default) {
-            $setting = static::where('_slug', $item)->first();
+            $setting = static::where('slug', $item)->first();
             
             if (!$setting) {
                 return $default;
@@ -65,7 +92,7 @@ class Setting extends Model
      */
     public static function setValue(string $item, $value): Setting
     {
-        $setting = static::firstOrNew(['_slug' => $item]);
+        $setting = static::firstOrNew(['slug' => $item]);
         $setting->current_value = $value;
         $setting->save();
 
@@ -86,7 +113,7 @@ class Setting extends Model
         
         return $query->get()
             ->mapWithKeys(function ($setting) {
-                return [$setting->_slug => $setting->current_value ?? $setting->default_value];
+                return [$setting->slug => $setting->current_value ?? $setting->default_value];
             })
             ->toArray();
     }
@@ -99,7 +126,7 @@ class Setting extends Model
      */
     public static function has(string $item): bool
     {
-        return static::where('_slug', $item)->exists();
+        return static::where('slug', $item)->exists();
     }
 
     /**
@@ -123,11 +150,11 @@ class Setting extends Model
     protected static function booted()
     {
         static::saved(function ($setting) {
-            Cache::forget("setting_{$setting->_slug}");
+            Cache::forget("setting_{$setting->slug}");
         });
 
         static::deleted(function ($setting) {
-            Cache::forget("setting_{$setting->_slug}");
+            Cache::forget("setting_{$setting->slug}");
         });
     }
 }

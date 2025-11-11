@@ -11,42 +11,75 @@ class Role extends Model
 {
     use HasFactory, SoftDeletes;
 
-    // =====================================================================
-    // Constants
-    // =====================================================================
-    public const PENDING   = 0;
-    public const ACTIVE   = 1;
-    public const SUSPENDED = 2;
-
-    // =====================================================================
-    // Table & Fillable
-    // =====================================================================
-    protected $table = 'roles';
-
+    // Status constants
+    public const STATUS_INACTIVE = 0;
+    public const STATUS_ACTIVE   = 1;
+    public const STATUS_PENDING  = 2;
+    
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
+        'uuid',
         'name',
-        '_slug',
+        'slug',
         'description',
         '_hierarchy_matrix_level',
-        '_status'
-    ];
-
-    protected $casts = [
-        'deleted_at' => 'datetime',
-        '_hierarchy_matrix_level' => 'integer',
-        '_status'    => 'integer'
+        'status',
     ];
 
     /**
-     * Get the hierarchy level of a role
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'id',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'is_active',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'uuid' => 'string',
+        '_hierarchy_matrix_level' => 'integer',
+        'status' => 'integer',
+        'deleted_at' => 'datetime',
+    ];
+
+    /**
+     * Check if the role is active.
+     *
+     * @return bool
+     */
+    public function getIsActiveAttribute(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    /**
+     * Get the hierarchy level of a role by its slug.
      *
      * @param string $roleSlug The role's slug
      * @return int The hierarchy level (0 if role not found)
      */
     public static function getHierarchyLevel(string $roleSlug): int
     {
-        return static::where('_slug', $roleSlug)
-            ->value('_hierarchy_matrix_level') ?? 0;
+        return (int) static::where('slug', $roleSlug)
+            ->value('_hierarchy_matrix_level');
     }
 
     /**
@@ -63,25 +96,26 @@ class Role extends Model
     }
 
     /**
-     * Get all roles that a user with a given role can assign
-     * 
+     * Get all roles that a user with a given role can assign.
+     *
      * @param string $userRoleSlug The slug of the user's role
-     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     * @return array<string, string> Array of role names keyed by slug
      */
-    public static function getAssignableRoles(string $userRoleSlug)
+    public static function getAssignableRoles(string $userRoleSlug): array
     {
         $userLevel = static::getHierarchyLevel($userRoleSlug);
         
-        return static::where('_hierarchy_matrix_level', '>', 0)
+        if ($userLevel <= 0) {
+            return [];
+        }
+        
+        return static::query()
+            ->where('_hierarchy_matrix_level', '>', 0)
             ->where('_hierarchy_matrix_level', '<=', $userLevel)
             ->orderBy('_hierarchy_matrix_level', 'desc')
-            ->pluck('name', '_slug')
+            ->pluck('name', 'slug')
             ->toArray();
     }
-
-    // =====================================================================
-    // Relationships
-    // =====================================================================
 
     /**
      * Users assigned to this role.
@@ -101,31 +135,23 @@ class Role extends Model
                     ->withTimestamps();
     }
 
-    // =====================================================================
-    // Scopes
-    // =====================================================================
-
     /**
      * Scope: Active roles only.
      */
     public function scopeActive($query)
     {
-        return $query->where('_status', self::ACTIVE);
+        return $query->where('status', self::STATUS_ACTIVE);
     }
 
-    // =====================================================================
-    // Helpers
-    // =====================================================================
-
     /**
-     * Check if role has a specific ability by name or _slug.
+     * Check if role has a specific ability by name or slug.
      */
     public function hasAbility(string $ability): bool
     {
         return $this->abilities()
             ->where(function ($q) use ($ability) {
                 $q->where('name', $ability)
-                  ->orWhere('_slug', $ability);
+                  ->orWhere('slug', $ability);
             })
             ->exists();
     }
@@ -135,7 +161,7 @@ class Role extends Model
      */
     public function activate(): self
     {
-        $this->update(['_status' => self::ACTIVE]);
+        $this->update(['status' => self::STATUS_ACTIVE]);
         return $this;
     }
 
@@ -144,15 +170,7 @@ class Role extends Model
      */
     public function deactivate(): self
     {
-        $this->update(['_status' => self::SUSPENDED]);
+        $this->update(['status' => self::STATUS_INACTIVE]);
         return $this;
-    }
-
-    /**
-     * Accessor: Is active?
-     */
-    public function getIsActiveAttribute(): bool
-    {
-        return $this->_status === self::ACTIVE;
     }
 }

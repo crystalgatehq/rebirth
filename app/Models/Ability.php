@@ -10,37 +10,58 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Ability extends Model
 {
     use HasFactory, SoftDeletes;
+    
+    // Status constants
+    public const STATUS_INACTIVE = 0;
+    public const STATUS_ACTIVE   = 1;
+    public const STATUS_PENDING  = 2;
 
-    // =====================================================================
-    // Constants
-    // =====================================================================
-    public const PENDING   = 0;
-    public const ACTIVE   = 1;
-    public const SUSPENDED = 2;
-
-    // =====================================================================
-    // Table & Fillable
-    // =====================================================================
-    protected $table = 'abilities';
-
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
+        'uuid',
         'name',
-        '_slug',
+        'slug',
         'description',
-        '_status',
+        'status',
+    ];
+    
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'id',
+    ];
+    
+    /**
+     * The attributes that should be appended to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'is_active',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
+        'uuid' => 'string',
+        'status' => 'integer',
         'deleted_at' => 'datetime',
-        '_status'    => 'integer',
     ];
-
-    // =====================================================================
-    // Relationships
-    // =====================================================================
 
     /**
      * Roles that have this ability.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function roles(): BelongsToMany
     {
@@ -48,45 +69,46 @@ class Ability extends Model
                     ->withTimestamps();
     }
 
-    // =====================================================================
-    // Scopes
-    // =====================================================================
-
     /**
      * Scope: Active abilities only.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeActive($query)
     {
-        return $query->where('_status', self::ACTIVE);
+        return $query->where('status', self::STATUS_ACTIVE);
     }
-
-    // =====================================================================
-    // Helpers
-    // =====================================================================
 
     /**
      * Activate the ability.
+     *
+     * @return self
      */
     public function activate(): self
     {
-        $this->update(['_status' => self::ACTIVE]);
+        $this->update(['status' => self::STATUS_ACTIVE]);
         return $this;
     }
 
     /**
      * Deactivate the ability.
+     *
+     * @return self
      */
     public function deactivate(): self
     {
-        $this->update(['_status' => self::SUSPENDED]);
+        $this->update(['status' => self::STATUS_INACTIVE]);
         return $this;
     }
 
     /**
      * Accessor: Is active?
+     *
+     * @return bool
      */
     public function getIsActiveAttribute(): bool
     {
-        return $this->_status === self::ACTIVE;
+        return $this->status === self::STATUS_ACTIVE;
     }
 }
