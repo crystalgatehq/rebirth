@@ -18,8 +18,18 @@ class TeamUser extends Model
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 0;
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
     protected $table = 'team_user';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'team_id',
         'user_id',
@@ -29,6 +39,11 @@ class TeamUser extends Model
         'status',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'constraints' => 'array',
         'activities' => 'array',
@@ -91,18 +106,5 @@ class TeamUser extends Model
     public function getConstraintsAttribute($value)
     {
         return is_array($value) ? $value : (json_decode($value, true) ?? []);
-    }
-
-
-    protected static function booted()
-    {
-        static::saving(function ($teamUser) {
-            if (is_array($teamUser->activities)) {
-                $teamUser->activities = json_encode($teamUser->activities);
-            }
-            if (is_array($teamUser->constraints)) {
-                $teamUser->constraints = json_encode($teamUser->constraints);
-            }
-        });
     }
 }

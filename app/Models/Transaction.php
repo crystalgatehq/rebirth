@@ -19,11 +19,9 @@ class Transaction extends Model
     public const STATUS_CANCELLED = 4;
 
     // System constants
-    public const SYSTEM_APP = 0;
-    public const SYSTEM_MPESA = 1;
-    public const SYSTEM_BANK = 2;
-    public const SYSTEM_CASH = 3;
-    public const SYSTEM_OTHER = 9;
+    public const SYSTEM_ANDROID_APP = 0;
+    public const SYSTEM_IOS_APP = 1;
+    public const SYSTEM_USSD = 2;
 
     /**
      * The attributes that are mass assignable.
@@ -113,16 +111,6 @@ class Transaction extends Model
     public function scopeCompleted($query)
     {
         return $query->where('status', self::STATUS_COMPLETED);
-    }
-
-    /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
-    public function getRouteKeyName()
-    {
-        return 'uuid';
     }
 
     /**

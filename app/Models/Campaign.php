@@ -30,7 +30,6 @@ class Campaign extends Model
     protected $fillable = [
         'uuid',
         'user_id',
-        'team_id',
         'parent_id',
         'name',
         'slug',
@@ -95,14 +94,6 @@ class Campaign extends Model
     }
 
     /**
-     * Get the team that owns the campaign.
-     */
-    public function team(): BelongsTo
-    {
-        return $this->belongsTo(Team::class);
-    }
-
-    /**
      * Get the parent campaign if this is a sub-campaign.
      */
     public function parent(): BelongsTo
@@ -124,15 +115,6 @@ class Campaign extends Model
     public function communications(): HasMany
     {
         return $this->hasMany(Communication::class);
-    }
-
-    /**
-     * The contact groups that belong to the campaign.
-     */
-    public function contactGroups(): BelongsToMany
-    {
-        return $this->belongsToMany(ContactGroup::class, 'campaign_contact_group')
-            ->withTimestamps();
     }
 
     /**
@@ -175,15 +157,5 @@ class Campaign extends Model
     public function isSubCampaign(): bool
     {
         return !is_null($this->parent_id);
-    }
-
-    /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
-    public function getRouteKeyName()
-    {
-        return 'uuid';
     }
 }

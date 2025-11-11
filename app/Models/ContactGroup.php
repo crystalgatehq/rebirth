@@ -109,15 +109,11 @@ class ContactGroup extends Model
     }
 
     /**
-     * Get the route key for the model.
+     * Check if the contact group can be viewed by the given user.
      *
-     * @return string
+     * @param  \App\Models\User  $user
+     * @return bool
      */
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
-
     public function canBeViewedBy(User $user): bool
     {
         // Owner can always view
@@ -146,6 +142,12 @@ class ContactGroup extends Model
         return false;
     }
 
+    /**
+     * Check if the contact group can be edited by the given user.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
     public function canBeEditedBy(User $user): bool
     {
         if ($this->user_id === $user->id) {
@@ -169,6 +171,11 @@ class ContactGroup extends Model
         return false;
     }
 
+    /**
+     * Get the subscribers for the contact group.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function subscribers(): HasMany
     {
         return $this->hasMany(ContactGroupSubscriber::class);

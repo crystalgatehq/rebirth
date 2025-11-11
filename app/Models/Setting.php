@@ -143,18 +143,4 @@ class Setting extends Model
             ? $type 
             : 'string';
     }
-
-    /**
-     * Boot the model.
-     */
-    protected static function booted()
-    {
-        static::saved(function ($setting) {
-            Cache::forget("setting_{$setting->slug}");
-        });
-
-        static::deleted(function ($setting) {
-            Cache::forget("setting_{$setting->slug}");
-        });
-    }
 }

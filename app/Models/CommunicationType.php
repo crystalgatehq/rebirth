@@ -93,16 +93,6 @@ class CommunicationType extends Model
     }
 
     /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
-
-    /**
      * Get the configuration as an array.
      *
      * @param  string|null  $key

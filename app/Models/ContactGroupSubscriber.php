@@ -107,16 +107,6 @@ class ContactGroupSubscriber extends Model
     }
 
     /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
-
-    /**
      * Check if the subscriber is active.
      *
      * @return bool

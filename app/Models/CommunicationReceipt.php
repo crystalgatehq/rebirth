@@ -64,8 +64,7 @@ class CommunicationReceipt extends Model
         'currency',
         'metadata',
         'created_by',
-        'updated_by',
-        'team_id',
+        'updated_by'
     ];
 
     /**
@@ -142,14 +141,6 @@ class CommunicationReceipt extends Model
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
-    }
-
-    /**
-     * Get the team that owns the receipt.
-     */
-    public function team(): BelongsTo
-    {
-        return $this->belongsTo(Team::class);
     }
 
     /**

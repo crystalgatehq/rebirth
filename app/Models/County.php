@@ -50,16 +50,6 @@ class County extends Model
     ];
 
     /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
-
-    /**
      * Scope a query to only include active counties.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query

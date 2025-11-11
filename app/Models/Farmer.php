@@ -105,14 +105,4 @@ class Farmer extends Model
     {
         return $query->where('status', self::STATUS_ACTIVE);
     }
-
-    /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
-    public function getRouteKeyName()
-    {
-        return 'farmer_code';
-    }
 }

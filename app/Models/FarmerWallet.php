@@ -108,14 +108,4 @@ class FarmerWallet extends Model
     {
         return $this->balance + $this->available_earnings;
     }
-
-    /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
 }

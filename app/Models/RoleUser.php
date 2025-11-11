@@ -60,18 +60,6 @@ class RoleUser extends Model
     ];
 
     /**
-     * The "booting" method of the model.
-     */
-    protected static function booted()
-    {
-        static::creating(function ($model) {
-            if (empty($model->assigned_at)) {
-                $model->assigned_at = now();
-            }
-        });
-    }
-
-    /**
      * Get the role that owns the role_user.
      */
     public function role(): BelongsTo

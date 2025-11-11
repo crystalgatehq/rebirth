@@ -109,14 +109,4 @@ class Produce extends Model
     {
         return $this->gross_pay - $this->transport_recovery - $this->other_charges;
     }
-
-    /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
 }
