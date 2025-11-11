@@ -3,53 +3,42 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-// Remove model import to prevent dependency during migration
-use Illuminate\Support\Facades\DB;
+use App\Models\Farmer;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        // Default configuration
-        $defaultConfig = [
-            'sms' => true,
-            'email' => true,
-            'whatsapp' => true,
-        ];
         Schema::create('farmers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('factory_id')->constrained('factories')->onDelete('cascade');
-            $table->string('farmer_code')->unique();
+            $table->string('farmer_code'); // Removed ->unique() from here
             $table->boolean('can_borrow')->default(false);
             $table->string('centre_code')->nullable();
             $table->string('centre_name')->nullable();
             $table->string('id_number')->nullable();
             $table->string('name');
-            $table->string('phone');
+            $table->string('phone', 20)->nullable()->unique(); // E.164: +2547...
             $table->string('route_code')->nullable();
             $table->string('route_name')->nullable();
-            $table->string('_slug')->nullable()->unique();
+            $table->string('slug')->nullable()->unique();
             $table->longText('description')->nullable();
-            $table->tinyInteger('_status')->default(1); // 1 = active
-            $table->json('configuration')->nullable();
+            $table->json('configuration')->nullable()->comment('Default: {"sms":true,"email":false,"whatsapp":false}');
+            $table->tinyInteger('status')->default(Farmer::STATUS_ACTIVE); // 1 = active
             $table->softDeletes();
             $table->timestamps();
+
+            // Composite unique constraint - farmer_code must be unique within each factory
+            $table->unique(['factory_id', 'farmer_code']);
 
             // Indexes
             $table->index('factory_id');
             $table->index('farmer_code');
             $table->index('centre_code');
             $table->index('route_code');
-            $table->index('_slug');
-            $table->index('_status');
+            $table->index('slug');
+            $table->index('status');
         });
-
-        // Update existing records with default configuration
-        if (Schema::hasTable('farmers')) {
-            DB::table('farmers')
-                ->whereNull('configuration')
-                ->update(['configuration' => json_encode($defaultConfig)]);
-        }
     }
 
     public function down(): void
@@ -57,3 +46,4 @@ return new class extends Migration
         Schema::dropIfExists('farmers');
     }
 };
+

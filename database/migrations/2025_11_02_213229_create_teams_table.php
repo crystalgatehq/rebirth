@@ -14,31 +14,31 @@ return new class extends Migration
     {
         Schema::create('teams', function (Blueprint $table) {
             $table->id();
-            $table->uuid('_uuid')->unique();
+            $table->uuid('uuid')->unique();
             $table->foreignId('owner_id')->nullable()->constrained('users')->onDelete('cascade');
             
             // Core team information
             $table->string('name');
             $table->string('display_name')->nullable();
             $table->string('abbrivated_name')->nullable()->unique(); // Short team code (e.g., "DEV", "MKTG")
-            $table->string('_slug')->nullable()->unique();
+            $table->string('slug')->nullable()->unique();
             
             // Team detailss
             $table->longText('description')->nullable();
             $table->boolean('personal_team')->default(false);
-            $table->tinyInteger('_status')->default(Team::STATUS_ACTIVE); // 1 = active, 0 = inactive
+            $table->tinyInteger('status')->default(Team::STATUS_ACTIVE); // 1 = active, 0 = inactive
             
             // Timestamps
             $table->softDeletes();
             $table->timestamps();
 
             // Indexes
-            $table->index('_uuid');
+            $table->index('uuid');
             $table->index('owner_id');
             $table->index('name');
             $table->index('abbrivated_name');
-            $table->index('_slug');
-            $table->index('_status');
+            $table->index('slug');
+            $table->index('status');
             $table->index('created_at');
         });
     }

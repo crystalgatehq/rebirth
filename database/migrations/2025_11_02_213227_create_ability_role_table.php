@@ -24,7 +24,7 @@ return new class extends Migration
             $table->longText('grant_reason')->nullable();
             $table->timestamp('expires_at')->nullable();
             
-            $table->integer('_status')->default(AbilityRole::STATUS_ACTIVE);
+            $table->integer('status')->default(AbilityRole::STATUS_ACTIVE);
             $table->timestamps();
             
             // Unique constraint

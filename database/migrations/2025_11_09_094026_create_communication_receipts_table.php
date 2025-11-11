@@ -3,8 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-// Remove model imports to prevent dependency during migration
-use Illuminate\Support\Facades\DB;
+use App\Models\CommunicationReceipt;
 
 return new class extends Migration
 {
@@ -15,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('communication_receipts', function (Blueprint $table) {
             $table->id();
-            $table->uuid('_uuid')->unique();
+            $table->uuid('uuid')->unique();
             
             // Core Relationships            
             $table->foreignId('campaign_id')->nullable()->constrained('campaigns')->onDelete('cascade');
@@ -91,38 +90,6 @@ return new class extends Migration
             $table->index('created_at');
             $table->index('sent_at');            
         });
-
-        // Set default values for JSON columns
-        if (Schema::hasTable('communication_receipts')) {
-            // Default template variables
-            $defaultTemplateVars = [];
-            
-            // Default provider response
-            $defaultProviderResponse = [];
-            
-            // Default delivery errors
-            $defaultDeliveryErrors = [];
-            
-            // Default metadata
-            $defaultMetadata = [];
-            
-            // Update null values with defaults
-            DB::table('communication_receipts')
-                ->whereNull('template_variables')
-                ->update(['template_variables' => json_encode($defaultTemplateVars)]);
-                
-            DB::table('communication_receipts')
-                ->whereNull('provider_response')
-                ->update(['provider_response' => json_encode($defaultProviderResponse)]);
-                
-            DB::table('communication_receipts')
-                ->whereNull('delivery_errors')
-                ->update(['delivery_errors' => json_encode($defaultDeliveryErrors)]);
-                
-            DB::table('communication_receipts')
-                ->whereNull('metadata')
-                ->update(['metadata' => json_encode($defaultMetadata)]);
-        }
     }
 
     /**

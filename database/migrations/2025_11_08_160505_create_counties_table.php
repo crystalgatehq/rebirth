@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\Ability;
+use App\Models\County;
 
 return new class extends Migration
 {
@@ -12,20 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('abilities', function (Blueprint $table) {
+        Schema::create('counties', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->string('name')->unique();
+            $table->string('name');
             $table->string('slug')->nullable()->unique();
-            $table->longText('description')->nullable();
-            $table->tinyInteger('status')->default(Ability::STATUS_ACTIVE); // 1 = active, 0 = inactive
-            $table->softDeletes();
+            $table->string('description')->nullable();
+            $table->integer('status')->default(County::STATUS_ACTIVE);
             $table->timestamps();
-
-            // Indexes
-            $table->index('uuid');
-            $table->index('slug');
-            $table->index('status');
         });
     }
 
@@ -34,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('abilities');
+        Schema::dropIfExists('counties');
     }
 };

@@ -24,7 +24,7 @@ return new class extends Migration
             $table->text('assignment_notes')->nullable();
             $table->timestamp('expires_at')->nullable();
 
-            $table->integer('_status')->default(RoleUser::STATUS_ACTIVE);
+            $table->integer('status')->default(RoleUser::STATUS_ACTIVE);
             $table->timestamps();
             
             // Unique constraint
@@ -34,8 +34,8 @@ return new class extends Migration
             $table->index('role_id');
             $table->index('user_id');
             $table->index('assigned_by');
-            $table->index(['user_id', '_status']);
-            $table->index(['role_id', '_status']);
+            $table->index(['user_id', 'status']);
+            $table->index(['role_id', 'status']);
         });
     }
 

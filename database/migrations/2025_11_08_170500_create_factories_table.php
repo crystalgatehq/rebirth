@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-// Remove model import to prevent dependency during migration
+use App\Models\Factory;
 
 return new class extends Migration
 {
@@ -11,19 +11,22 @@ return new class extends Migration
     {
         Schema::create('factories', function (Blueprint $table) {
             $table->id();
+            $table->integer('county_id')->nullable()->constrained('counties')->onDelete('cascade');
             $table->string('factory_code')->unique();
             $table->string('name');
-            $table->string('_slug')->nullable()->unique();
+            $table->string('slug')->nullable()->unique();
             $table->longText('description')->nullable();
             $table->string('base_url');
-            $table->tinyInteger('_status')->default(1); // 1 = active
+            $table->string('api_user');
+            $table->string('api_user_credentials');
+            $table->tinyInteger('status')->default(Factory::STATUS_ACTIVE);
             $table->softDeletes();
             $table->timestamps();
 
             // Indexes
             $table->index('factory_code');
-            $table->index('_slug');
-            $table->index('_status');
+            $table->index('slug');
+            $table->index('status');
         });
     }
 

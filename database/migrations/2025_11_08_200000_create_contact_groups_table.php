@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-// Remove model import to prevent dependency during migration
+use App\Models\ContactGroup;
 
 return new class extends Migration
 {
@@ -11,26 +11,27 @@ return new class extends Migration
     {
         Schema::create('contact_groups', function (Blueprint $table) {
             $table->id();
-            $table->uuid('_uuid')->unique();
+            $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('name');
-            $table->string('_slug')->nullable();
+            $table->string('slug')->nullable();
             $table->text('description')->nullable();
             
             // Ownership and access control
-            $table->enum('visibility', ['private', 'team', 'public'])->default('private'); // private: Only me, team: Me and my team, public: Me and my team and Everyone in system
+            $table->tinyInteger('visibility')->default(ContactGroup::VISIBILITY_PRIVATE); // private: Only me, team: Me and my team, public: Me and my team and Everyone in system
             
             // Status and timestamps
-            $table->tinyInteger('_status')->default(1); // 1 = active, 0 = inactive
+            $table->tinyInteger('status')->default(ContactGroup::STATUS_ACTIVE); // 1 = active, 0 = inactive
             $table->softDeletes();
             $table->timestamps();
             
             // Indexes
-            $table->index('_uuid');
+            $table->index('uuid');
             $table->index('user_id');
             $table->index('name');
-            $table->index('_slug');
-            $table->index('_status');
+            $table->index('slug');
+            $table->index('visibility');
+            $table->index('status');
         });
     }
 

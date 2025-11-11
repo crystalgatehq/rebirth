@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('profiles', function (Blueprint $table) {
             $table->id();
-            $table->uuid('_uuid')->unique();
+            $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('salutation')->nullable();           // Mr, Mrs, Dr, etc.
             $table->string('first_name')->nullable();
@@ -35,18 +35,18 @@ return new class extends Migration
             $table->string('timezone')->default('Africa/Nairobi');
             $table->string('locale', 10)->default('en');
             $table->json('configuration')->nullable();
-            $table->tinyInteger('_status')->default(Profile::STATUS_PENDING);
+            $table->tinyInteger('status')->default(Profile::STATUS_PENDING);
             $table->softDeletes();
             $table->timestamps();
 
             // Indexes
-            $table->index('_uuid');
+            $table->index('uuid');
             $table->index('user_id');
             $table->index('telephone');
             $table->index('first_name');
             $table->index('last_name');
             $table->index('country');
-            $table->index('_status');
+            $table->index('status');
         });
     }
 

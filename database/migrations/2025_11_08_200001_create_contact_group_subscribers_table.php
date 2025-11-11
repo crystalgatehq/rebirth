@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('contact_group_subscribers', function (Blueprint $table) {
             $table->id();
-            $table->uuid('_uuid')->unique();
+            $table->uuid('uuid')->unique();
             $table->foreignId('contact_group_id')->constrained('contact_groups')->onDelete('cascade');
             $table->foreignId('farmer_id')->constrained('farmers')->onDelete('cascade');
             $table->foreignId('added_by')->nullable()->constrained('users')->onDelete('set null');
@@ -23,17 +23,17 @@ return new class extends Migration
             $table->json('metadata')->nullable(); // Custom fields, notes, etc.
             
             // Status: 1 = active, 0 = inactive, 2 = pending, 3 = rejected
-            $table->tinyInteger('_status')->default(ContactGroupSubscriber::STATUS_ACTIVE);
+            $table->tinyInteger('status')->default(ContactGroupSubscriber::STATUS_ACTIVE);
             
             $table->softDeletes();
             $table->timestamps();
             
             // Indexes
-            $table->index('_uuid');
+            $table->index('uuid');
             $table->index('contact_group_id');
             $table->index('farmer_id');
             $table->index('added_by');
-            $table->index('_status');
+            $table->index('status');
             
             // Ensure a farmer can't be added to the same group twice
             $table->unique(['contact_group_id', 'farmer_id']);
