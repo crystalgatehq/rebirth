@@ -35,13 +35,58 @@ class UserFactory extends Factory
      *
      * @return array<string, mixed>
      */
+    /**
+     * Indicate that the user is an admin.
+     */
+    public function admin()
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'Admin User',
+            'email' => 'admin@rebirth.org',
+        ]);
+    }
+
+    /**
+     * Indicate that the user is a manager.
+     */
+    public function manager()
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'Manager User',
+            'email' => 'manager@rebirth.org',
+        ]);
+    }
+
+    /**
+     * Indicate that the user is a regular user.
+     */
+    public function regular()
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'Regular User',
+            'email' => 'user@rebirth.org',
+        ]);
+    }
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
+        static $counter = 1;
+        
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name' => 'User ' . $counter,
+            'email' => 'user' . $counter++ . '@rebirth.org',
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('Qwerty123!'),
+            'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
     }
@@ -112,9 +157,9 @@ class UserFactory extends Factory
             ->for($user, 'owner')
             ->create([
                 'name' => "{$user->name}'s Team",
-                '_slug' => Str::slug("{$user->name}-team"),
+                'slug' => Str::slug("{$user->name}-team"),
                 'personal_team' => false,
-                '_status' => 1, // 1 = active
+                'status' => 1, // 1 = active
             ]);
 
         $user->update(['current_team_id' => $team->id]);
@@ -135,7 +180,7 @@ class UserFactory extends Factory
         }
 
         // Get a random role (excluding administrator for security)
-        $role = Role::where('_slug', '!=', 'administrator')
+        $role = Role::where('slug', '!=', 'administrator')
             ->inRandomOrder()
             ->first();
 

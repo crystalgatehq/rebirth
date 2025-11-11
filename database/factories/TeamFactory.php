@@ -28,16 +28,16 @@ class TeamFactory extends Factory
         $name = $this->faker->company() . ' ' . $this->faker->companySuffix();
         
         return [
-            '_uuid' => (string) Str::uuid(),
+            'uuid' => (string) Str::uuid(),
             'user_id' => User::factory(),
             'name' => $name,
-            '_slug' => Str::slug($name),
+            'slug' => Str::slug($name),
             'description' => $this->faker->boolean(70) ? $this->faker->paragraph() : null,
             'personal_team' => false,
-            '_status' => $this->faker->randomElement([
-                Team::PENDING,
-                Team::ACTIVE,
-                Team::SUSPENDED
+            'status' => $this->faker->randomElement([
+                Team::STATUS_INACTIVE,
+                Team::STATUS_ACTIVE,
+                Team::STATUS_SUSPENDED
             ]),
         ];
     }
@@ -48,7 +48,7 @@ class TeamFactory extends Factory
     public function active(): static
     {
         return $this->state(fn (array $attributes) => [
-            '_status' => Team::ACTIVE,
+            'status' => Team::STATUS_ACTIVE,
         ]);
     }
 
@@ -58,7 +58,7 @@ class TeamFactory extends Factory
     public function pending(): static
     {
         return $this->state(fn (array $attributes) => [
-            '_status' => Team::PENDING,
+            'status' => Team::STATUS_INACTIVE,
         ]);
     }
 
@@ -68,7 +68,7 @@ class TeamFactory extends Factory
     public function suspended(): static
     {
         return $this->state(fn (array $attributes) => [
-            '_status' => Team::SUSPENDED,
+            'status' => Team::STATUS_SUSPENDED,
         ]);
     }
 
@@ -80,7 +80,7 @@ class TeamFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'personal_team' => true,
             'name' => 'Personal Team',
-            '_slug' => 'personal-team',
+            'slug' => 'personal-team',
         ]);
     }
 

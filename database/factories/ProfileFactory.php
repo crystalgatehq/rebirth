@@ -27,7 +27,7 @@ class ProfileFactory extends Factory
         $middleName = $this->faker->boolean(30) ? $this->faker->firstName($gender) : null;
         
         return [
-            '_uuid' => (string) Str::uuid(),
+            'uuid' => (string) Str::uuid(),
             'user_id' => User::factory(),
             
             // Personal Info
@@ -134,7 +134,7 @@ class ProfileFactory extends Factory
                     ]
                 ]
             ],
-            '_status' => $this->getRandomStatus(),
+            'status' => $this->getRandomStatus(),
         ];
     }
 
@@ -144,7 +144,7 @@ class ProfileFactory extends Factory
     public function active(): static
     {
         return $this->state([
-            '_status' => Profile::ACTIVE,
+            'status' => Profile::ACTIVE,
         ]);
     }
 
@@ -154,7 +154,7 @@ class ProfileFactory extends Factory
     public function pending(): static
     {
         return $this->state([
-            '_status' => Profile::PENDING,
+            'status' => Profile::PENDING,
         ]);
     }
 
@@ -164,7 +164,7 @@ class ProfileFactory extends Factory
     public function suspended(): static
     {
         return $this->state([
-            '_status' => Profile::SUSPENDED,
+            'status' => Profile::SUSPENDED,
         ]);
     }
 
