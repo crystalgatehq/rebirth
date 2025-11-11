@@ -387,7 +387,7 @@ class AfricaIsTalkingServices
             return array_filter([
                 'transaction_amount' => ($response['cost'] ?? 0) + 0.2,
                 'transaction_id' => $response['recipients'][0]['message_id'] ?? null,
-                '_status' => $response['recipients'][0]['status'] ?? 'PENDING',
+                'status' => $response['recipients'][0]['status'] ?? 'PENDING',
             ]);
         }
         
@@ -430,7 +430,7 @@ class AfricaIsTalkingServices
         $textMessage->update([
             'network_code' => $request['networkCode'] ?? NULL,
             'failure_reason' => $request['failureReason'] ?? NULL,
-            '_status' => $status
+            'status' => $status
         ]);
     }
 
