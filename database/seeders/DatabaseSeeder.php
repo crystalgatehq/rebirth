@@ -112,14 +112,20 @@ class DatabaseSeeder extends Seeder
 
         // 5. Run the database fixer to ensure data integrity
         $this->call([
-            FixDatabaseSeeder::class,
+            \Database\Seeders\FixDatabaseSeeder::class,
         ]);
         
-        // Output success message
-        $this->command->info('✅ Database seeding completed successfully!');
+        // Clear the console output
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            system('cls');
+        } else {
+            system('clear');
+        }
+        
+        // Output the clean seeding report
+        echo \Database\Seeders\Helpers\DatabaseSeederReport::generate();
         
         // Prevent any further output
-        $this->command->getOutput()->writeln('');
         exit(0);
     }
 

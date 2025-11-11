@@ -18,9 +18,6 @@ class AbilityRoleTableSeeder extends Seeder
             'View Dashboard', 'View Users', 'View Reports', 'Export Data',
             'Manage Room Status', 'Process Payments', 'Monitor CCTV'
         ],
-        'Finance Manager' => [
-            'View Reports', 'Export Data', 'Process Payments', 'Process Payroll'
-        ],
         'Operations Manager' => [
             'View Dashboard', 'View Reports', 'Manage Room Status', 'Process Payments'
         ],
@@ -31,10 +28,13 @@ class AbilityRoleTableSeeder extends Seeder
             'Monitor CCTV', 'Control Access'
         ],
         'Content Moderator' => [
-            'View Reports', 'Manage Content'
+            'View Reports'  // Removed 'Manage Content' as it's not in the abilities list
         ],
         'Registered User' => [
             'View Dashboard'
+        ],
+        'Guest' => [
+            // No abilities by default for guests
         ]
     ];
 
