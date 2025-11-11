@@ -30,12 +30,10 @@ return new class extends Migration
             // Unique constraint
             $table->unique(['ability_id', 'role_id']);
             
-            // Indexes
-            $table->index('ability_id');
+            // Optimized Indexes
             $table->index('role_id');
             $table->index('granted_by');
-            $table->index('expires_at');
-            $table->index(['role_id', 'expires_at']);
+            $table->index(['ability_id', 'expires_at']);
         });
     }
 

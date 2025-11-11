@@ -31,16 +31,11 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
             
-            // Indexes
-            $table->index('uuid');
+            // Optimized Indexes
             $table->index('farmer_id');
             $table->index('factory_id');
             $table->index('transaction_id');
-            $table->index('route_code');
-            $table->index('route_name');
-            $table->index('centre_code');
-            $table->index('centre_name');
-            $table->index('status');
+            $table->index(['status', 'created_at']);
         });
     }
 

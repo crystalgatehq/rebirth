@@ -22,9 +22,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            // Indexes
-            $table->index('uuid');
-            $table->index('slug');
+            // Optimized Indexes
             $table->index('status');
         });
     }

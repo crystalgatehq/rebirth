@@ -14,7 +14,7 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('name');
-            $table->string('slug')->nullable();
+            $table->string('slug')->nullable()->unique();
             $table->text('description')->nullable();
             
             // Ownership and access control
@@ -25,12 +25,8 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
             
-            // Indexes
-            $table->index('uuid');
+            // Optimized Indexes
             $table->index('user_id');
-            $table->index('name');
-            $table->index('slug');
-            $table->index('visibility');
             $table->index('status');
         });
     }

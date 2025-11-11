@@ -31,13 +31,10 @@ return new class extends Migration
             // Composite unique constraint - farmer_code must be unique within each factory
             $table->unique(['factory_id', 'farmer_code']);
 
-            // Indexes
-            $table->index('factory_id');
-            $table->index('farmer_code');
-            $table->index('centre_code');
-            $table->index('route_code');
+            // Optimized Indexes
+            $table->index('phone');
             $table->index('slug');
-            $table->index('status');
+            $table->index(['status', 'created_at']);
         });
     }
 

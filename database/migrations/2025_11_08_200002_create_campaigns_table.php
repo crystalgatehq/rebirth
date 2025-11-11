@@ -13,7 +13,6 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('team_id')->nullable()->constrained('teams')->onDelete('set null');
             $table->foreignId('parent_id')->nullable()->constrained('campaigns')->onDelete('cascade');
             $table->string('name');
             $table->string('slug')->nullable()->unique();
@@ -34,13 +33,11 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            // Indexes
-            $table->index('uuid');
+            // Optimized Indexes
             $table->index('user_id');
-            $table->index('team_id');
             $table->index('parent_id');
-            $table->index('slug');
             $table->index('status');
+            $table->index(['status', 'starts_at', 'ends_at']);
         });
     }
 

@@ -28,15 +28,15 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
             
-            // Indexes
-            $table->index('uuid');
-            $table->index('contact_group_id');
+            // Optimized Indexes
             $table->index('farmer_id');
-            $table->index('added_by');
             $table->index('status');
             
             // Ensure a farmer can't be added to the same group twice
             $table->unique(['contact_group_id', 'farmer_id']);
+            
+            // For common queries that filter by group and status
+            $table->index(['contact_group_id', 'status']);
         });
     }
 

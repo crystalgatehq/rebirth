@@ -29,14 +29,12 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            // Unique constraint
+            // Composite unique constraint for team membership
             $table->unique(['team_id', 'user_id']);
             
-            // Indexes
-            $table->index('team_id');
-            $table->index('user_id');
+            // Optimized Indexes
+            $table->index(['user_id', 'team_id']);
             $table->index('play');
-            $table->index('status');
         });
     }
 

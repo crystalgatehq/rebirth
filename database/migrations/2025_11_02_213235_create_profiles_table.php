@@ -39,14 +39,11 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            // Indexes
-            $table->index('uuid');
+            // Optimized Indexes
             $table->index('user_id');
             $table->index('telephone');
-            $table->index('first_name');
-            $table->index('last_name');
+            $table->index(['first_name', 'last_name']);
             $table->index('country');
-            $table->index('status');
         });
     }
 

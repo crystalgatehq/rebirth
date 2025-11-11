@@ -70,14 +70,13 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
             
-            // Indexes
+            // Optimized Indexes
             $table->index(['communication_id', 'status']);
-            // $table->index(['farmer_id', 'status']);
             $table->index(['campaign_id', 'status']);
             $table->index('recipient_telephone');
             $table->index('provider_message_id');
-            $table->index('created_at');
-            $table->index('sent_at');            
+            $table->index(['status', 'created_at']);
+            $table->index('scheduled_at');
         });
     }
 

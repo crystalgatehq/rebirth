@@ -20,6 +20,9 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->integer('status')->default(County::STATUS_ACTIVE);
             $table->timestamps();
+            
+            // Optimized Indexes
+            $table->index('status');
         });
     }
 

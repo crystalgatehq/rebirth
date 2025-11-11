@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('communication_category_id')->constrained('communication_categories');
             $table->foreignId('campaign_id')->constrained('campaigns')->onDelete('cascade');
             $table->foreignId('parent_id')->nullable()->constrained('communications')->onDelete('cascade');
+            $table->foreignId('contact_group_id')->nullable()->constrained('contact_groups')->onDelete('cascade');
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             
             // Campaign-specific fields
@@ -60,11 +61,11 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            // Indexes
-            $table->index('uuid');
+            // Optimized Indexes
             $table->index(['communication_type_id', 'status', 'scheduled_for']);
             $table->index(['campaign_id', 'status']);
             $table->index('created_by');
+            $table->index(['contact_group_id', 'status']);
         });
     }
 

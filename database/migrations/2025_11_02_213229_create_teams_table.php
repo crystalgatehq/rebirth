@@ -32,13 +32,8 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            // Indexes
-            $table->index('uuid');
+            // Optimized Indexes
             $table->index('owner_id');
-            $table->index('name');
-            $table->index('abbrivated_name');
-            $table->index('slug');
-            $table->index('status');
             $table->index('created_at');
         });
     }

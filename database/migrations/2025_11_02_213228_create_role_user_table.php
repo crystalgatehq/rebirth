@@ -30,11 +30,9 @@ return new class extends Migration
             // Unique constraint
             $table->unique(['role_id', 'user_id']);
             
-            // Indexes
-            $table->index('role_id');
+            // Optimized Indexes
             $table->index('user_id');
             $table->index('assigned_by');
-            $table->index(['user_id', 'status']);
             $table->index(['role_id', 'status']);
         });
     }

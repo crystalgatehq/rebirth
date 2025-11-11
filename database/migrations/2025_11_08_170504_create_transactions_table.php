@@ -14,6 +14,7 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->foreignId('farmer_id')->constrained('farmers')->onDelete('cascade');
             $table->foreignId('factory_id')->constrained('factories')->onDelete('cascade');
+            $table->string('transaction_code');
             $table->decimal('amount', 10, 2);
             $table->decimal('charge', 10, 2)->default(0);
             $table->decimal('convenience_fee', 10, 2)->default(0);
@@ -21,17 +22,15 @@ return new class extends Migration
             $table->decimal('total_amount', 10, 2);
             $table->longText('description')->nullable();
             $table->timestamp('loan_date');
-            $table->tinyInteger('system')->default(Transaction::SYSTEM_APP);
+            $table->tinyInteger('system')->nullable();
             $table->tinyInteger('status')->default(Transaction::STATUS_PENDING);
             $table->softDeletes();
             $table->timestamps();
             
-            // Indexes
-            $table->index('uuid');
+            // Optimized Indexes
             $table->index('farmer_id');
             $table->index('factory_id');
-            $table->index('system');
-            $table->index('status');
+            $table->index(['status', 'created_at']);
         });
     }
 

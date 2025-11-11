@@ -22,11 +22,8 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
             
-            // Indexes
-            $table->index('uuid');
-            $table->index('farmer_id');
+            // Optimized Indexes
             $table->index('factory_id');
-            $table->index('status');
         });
     }
 

@@ -45,12 +45,10 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            // Indexes
-            $table->index('uuid');
+            // Optimized Indexes
             $table->index('slug');
             $table->index('status');
             $table->index('parent_id');
-            $table->index('created_at');
         });
     }
 

@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('factories', function (Blueprint $table) {
             $table->id();
-            $table->integer('county_id')->nullable()->constrained('counties')->onDelete('cascade');
+            $table->integer('county_id')->constrained('counties')->onDelete('cascade');
             $table->string('factory_code')->unique();
             $table->string('name');
             $table->string('slug')->nullable()->unique();
@@ -23,10 +23,9 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            // Indexes
+            // Optimized Indexes
             $table->index('factory_code');
             $table->index('slug');
-            $table->index('status');
         });
     }
 
