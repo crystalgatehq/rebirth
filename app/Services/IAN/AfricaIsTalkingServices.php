@@ -100,7 +100,7 @@ class AfricaIsTalkingServices
     protected function loadSettings(): array
     {
         if ($this->isRunningMigrations()) {
-            return [
+            return [ls 
                 'AFRICASTALKING_USERNAME' => 'migration',
                 'AFRICASTALKING_API_KEY' => 'migration',
                 'AFRICASTALKING_SENDER_ID' => 'REBIRTH',
