@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Communication;
 
 return new class extends Migration
 {
@@ -30,7 +31,7 @@ return new class extends Migration
             $table->json('attachments')->nullable(); // Array of file paths or URLs
             
             // Delivery configuration (1=immediate, 2=scheduled, 3=recurring)
-            $table->tinyInteger('delivery_type')->default(1); // 1 = immediate
+            $table->tinyInteger('delivery_type')->default(Communication::DELIVERY_TYPE_IMMEDIATE); // 1 = immediate
             $table->timestamp('scheduled_for')->nullable();
             $table->json('recurrence')->nullable();
             $table->timestamp('start_at')->nullable();
@@ -53,7 +54,7 @@ return new class extends Migration
             $table->json('metadata')->nullable();
 
             // Status tracking (1=draft, 2=pending_approval, 3=approved, 4=processing, 5=sent, 6=partially_sent, 7=failed, 8=cancelled)
-            $table->tinyInteger('status')->default(1); // 1 = draft
+            $table->tinyInteger('status')->default(Communication::STATUS_DRAFT); // 1 = draft
             
             // Status and timestamps
             $table->softDeletes();

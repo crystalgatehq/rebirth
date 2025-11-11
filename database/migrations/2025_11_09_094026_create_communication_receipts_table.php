@@ -38,11 +38,8 @@ return new class extends Migration
             $table->string('sender_name')->nullable();
             
             // Provider Information
-            $table->enum('provider_name', [
-                'africastalking',
-                'twilio',
-                'nexmo',
-            ])->nullable(); // e.g., 'africastalking', 'twilio', 'nexmo' etc.
+            // e.g., 'africastalking', 'twilio', 'nexmo' etc.
+            $table->tinyInteger('provider')->default(CommunicationReceipt::PROVIDER_AFRICASTALKING);
             $table->string('provider_message_id')->nullable()->unique(); // External provider's message ID
             $table->json('provider_response')->nullable(); // Raw response from provider
             
@@ -67,15 +64,7 @@ return new class extends Migration
             $table->json('metadata')->nullable();
 
             // Status Tracking
-            $table->enum('status', [
-                'PENDING',          // Initial state
-                'PROCESSING',       // Being processed
-                'SENT',             // Successfully sent to provider
-                'DELIVERED',        // Confirmed delivered to recipient
-                'FAILED',           // Failed to send
-                'UNDELIVERED',      // Sent but not delivered
-                'PARTIALLY_SENT'    // For bulk operations
-            ])->default('PENDING');
+            $table->tinyInteger('status')->default(CommunicationReceipt::STATUS_PENDING); // Initial state
 
             // Soft Deletes & Timestamps
             $table->softDeletes();
