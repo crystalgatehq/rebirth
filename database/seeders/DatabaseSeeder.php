@@ -19,15 +19,21 @@ class DatabaseSeeder extends Seeder
     {
         // Disable query logging to prevent memory issues
         DB::disableQueryLog();
+
+        // 1. Seed Settings → AfricasTalkingSettingsSeeder
+        $this->call([
+            SettingsTableSeeder::class,
+            AfricasTalkingSettingsSeeder::class,
+        ]);
         
-        // 1. Seed Roles → Abilities → Pivot
+        // 2. Seed Roles → Abilities → Pivot
         $this->call([
             RolesTableSeeder::class,
             AbilitiesTableSeeder::class,
             AbilityRoleTableSeeder::class,
         ]);
 
-        // 2. Create test users for each role if they don't exist
+        // 3. Create test users for each role if they don't exist
         $testUsers = [
             'administrator' => [
                 'email' => 'admin@rebirth.org',
@@ -105,9 +111,12 @@ class DatabaseSeeder extends Seeder
             }
         }
         
-        // 4. Add Africa's Talking settings
+        // 4. Seed geographic data
         $this->call([
-            AfricasTalkingSettingsSeeder::class,
+            CountiesTableSeeder::class,
+            FactoriesTableSeeder::class,
+            CommunicationTypesTableSeeder::class,
+            CommunicationCategoriesTableSeeder::class,
         ]);
 
         // 5. Run the database fixer to ensure data integrity
